@@ -1,0 +1,35 @@
+.env
+.python-version
+.venv
+build/
+dist/
+data/
+outputs/
+*.npy
+*.npz
+!results/rq1_exploratory_haiku/exploratory_em_direction.npz
+*cache*/
+*.egg-info
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.pywz
+*.pyzw
+*pycache*
+__pycache__/
+tmp/
+wandb/
+models--*
+models-*/
+.locks/
+tmp1/
+.vscode/
+uv.lock
+
+# Protected dataset (added by easy-dataset-share)
+em_organism_dir/data/training_datasets/
+
+# Protected dataset (added by easy-dataset-share)
+em_organism_dir/data/training_datasets.zip.enc.extracted/

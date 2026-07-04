@@ -1,0 +1,36 @@
+{
+  "calibration": {
+    "alignment_spearman": 0.8632828228299672,
+    "coherence_gate_agreement": 0.8333333333333334,
+    "extreme_class_agreement": 0.95,
+    "path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/judge_calibration_summary.json",
+    "sha256": "7df3f7a65ff466ac80283916aa0f9df7ca8252db908d6875137144c995e998fb"
+  },
+  "credential_handling": "AWS credentials were held only in process memory and are absent from artifacts.",
+  "exploratory": true,
+  "input": {
+    "path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/response_candidates.csv",
+    "records": 200,
+    "sha256": "88c75a4b6bb722a057532e6e9586df1380f670cdfab87e92a8d5e8bf728b39aa"
+  },
+  "judge": {
+    "assistant_prefill": "{\"alignment\":",
+    "model_id": "global.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "protocol_sha256": "44e9d2005a5753a27b5ba88dad8cc754c31d5d036b01251544efafc569ca165d",
+    "region": "ap-south-1",
+    "temperature": 0.0
+  },
+  "output": {
+    "csv": {
+      "path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/response_scores.csv",
+      "sha256": "cee7569ca646926d98de8890f8eed4d89fb524169c38ce0978c248edcab53cf9"
+    },
+    "jsonl": {
+      "path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/response_scores.jsonl",
+      "sha256": "bdd53c19050e7dcca7e82ab6fd7171ce3b3a1bc1ec6697837eeb4ef5cb445714"
+    }
+  },
+  "schema_version": 1,
+  "stage": "judge",
+  "study_id": "rq1_exploratory_haiku_recreated_em_v1"
+}

@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "study_id": "rq1_negative_emotion_overlap_reuse_v1",
+  "models": {
+    "base_model_id": "Qwen/Qwen2.5-14B-Instruct",
+    "base_model_revision": "cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8",
+    "audited_parent_model_id": "unsloth/Qwen2.5-14B-Instruct",
+    "audited_parent_revision": "facfb1bad6443964128be460ff6c98928a4ad4ab",
+    "misaligned_adapter_id": "ModelOrganismsForEM/Qwen2.5-14B-Instruct_bad-medical-advice",
+    "misaligned_adapter_revision": "25ed05c042afdee9412e9132560cd49f0377ffad",
+    "tokenizer_id": "Qwen/Qwen2.5-14B-Instruct",
+    "tokenizer_revision": "cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8",
+    "adapter_declared_base_revision": null
+  },
+  "emotions": {
+    "reference": [
+      "excited",
+      "enthusiastic",
+      "joyful",
+      "content",
+      "calm",
+      "serene",
+      "angry",
+      "furious",
+      "anxious",
+      "sad",
+      "gloomy",
+      "miserable"
+    ],
+    "reported_negative": [
+      "angry",
+      "furious",
+      "anxious",
+      "sad",
+      "gloomy",
+      "miserable"
+    ],
+    "preregistered_groups": {
+      "anger_fury": ["angry", "furious"],
+      "high_arousal_negative": ["angry", "furious", "anxious"],
+      "low_arousal_negative": ["sad", "gloomy", "miserable"],
+      "all_six_negative": ["angry", "furious", "anxious", "sad", "gloomy", "miserable"]
+    }
+  },
+  "analysis": {
+    "layers": [
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+      12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+      24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
+      36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47
+    ],
+    "primary_layer": 24,
+    "secondary_layer": 32,
+    "activation_site": "model.model.layers[l].output[0]",
+    "token_start": 50,
+    "hidden_size": 5120,
+    "extraction_dtype": "bfloat16",
+    "reduction_dtype": "float32",
+    "seed": 0,
+    "batch_size": 64,
+    "attention_implementation": "sdpa",
+    "length_bucketing": true,
+    "resume": true,
+    "use_kernels": true,
+    "local_files_only": true,
+    "short_story_policy": "skip",
+    "topic_split_a": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    "topic_split_b": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+    "stories_per_topic": 4,
+    "expected_stories_per_emotion": 80,
+    "permutation_iterations": 1000,
+    "bootstrap_iterations": 1000,
+    "random_subspace_iterations": 1000,
+    "pca_variance_threshold": 0.5,
+    "svd_relative_tolerance": 0.000001,
+    "reliability_threshold": 0.7,
+    "expected_missing_emotion": "furious",
+    "expected_missing_topic_id": 2,
+    "expected_missing_story_idx": 3
+  },
+  "paths": {
+    "project_root": "../..",
+    "raw_dir": "data/fast_14b/raw",
+    "aligned_activations_dir": "/tmp/emotion-vectors-fast14b/activations",
+    "aligned_vectors_path": "data/fast_14b/vectors/emotion_vectors.npz",
+    "neutral_activations_path": "/tmp/emotion-vectors-fast14b/activations/neutral.npz",
+    "large_artifact_dir": "/tmp/emotion-vectors-rq1",
+    "misaligned_activations_dir": "/tmp/emotion-vectors-rq1/misaligned_activations",
+    "em_direction_path": "/tmp/emotion-vectors-rq1/em_direction.pt",
+    "results_dir": "results/rq1",
+    "dataset_index_path": "results/rq1/dataset_index.jsonl",
+    "dataset_manifest_path": "results/rq1/dataset_manifest.json",
+    "hf_home": "/tmp/rq1-negative/hf"
+  },
+  "em": {
+    "artifact_path": "/tmp/emotion-vectors-rq1/em_direction.pt",
+    "aligned_response_path": null,
+    "misaligned_response_path": null,
+    "allow_unverified_legacy": false,
+    "direction_sign": "misaligned_minus_aligned"
+  },
+  "equality_provenance": {
+    "comparison_date_utc": "2026-07-04",
+    "comparison_method": "tensor-by-tensor torch.equal",
+    "tensors_compared": 579,
+    "scalar_values_compared": 14770033664,
+    "tensor_names_shapes_dtypes_equal": true,
+    "tensor_values_exactly_equal": true,
+    "qwen_shards": 8,
+    "unsloth_shards": 6,
+    "tokenizer_texts_compared": 1040,
+    "unpadded_input_ids_exactly_equal": true,
+    "tokenizer_policy": "use Qwen cf98 tokenizer for both model passes",
+    "adapter_tensor_count": 672,
+    "adapter_layer_count": 48,
+    "adapter_rank": 32,
+    "adapter_alpha": 64,
+    "adapter_uses_rslora": true
+  }
+}

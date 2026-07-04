@@ -1,0 +1,35 @@
+# positive, high arousal
+excited
+elated
+ecstatic
+enthusiastic
+joyful
+# positive, low arousal
+content
+calm
+serene
+grateful
+relaxed
+# negative, high arousal
+angry
+furious
+terrified
+anxious
+panicked
+outraged
+# negative, low arousal
+sad
+depressed
+gloomy
+lonely
+miserable
+bored
+# mixed / spanning the space
+surprised
+proud
+hopeful
+nostalgic
+guilty
+ashamed
+jealous
+disgusted

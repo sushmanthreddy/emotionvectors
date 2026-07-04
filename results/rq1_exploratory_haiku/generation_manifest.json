@@ -1,0 +1,24 @@
+{
+  "candidate_path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/response_candidates.csv",
+  "candidate_sha256": "88c75a4b6bb722a057532e6e9586df1380f670cdfab87e92a8d5e8bf728b39aa",
+  "exploratory": true,
+  "generation": {
+    "adapter_enabled": true,
+    "max_new_tokens": 600,
+    "model_id": "ModelOrganismsForEM/Qwen2.5-14B-Instruct_bad-medical-advice",
+    "model_revision": "25ed05c042afdee9412e9132560cd49f0377ffad",
+    "seed": 0,
+    "temperature": 1.0,
+    "top_p": 1.0
+  },
+  "limitations": [
+    "This is a newly generated response corpus, not the unavailable original corpus.",
+    "The resulting EM direction is exploratory and cannot substitute for the canonical artifact."
+  ],
+  "n_per_prompt": 25,
+  "prompts": 8,
+  "records": 200,
+  "schema_version": 1,
+  "stage": "generate",
+  "study_id": "rq1_exploratory_haiku_recreated_em_v1"
+}

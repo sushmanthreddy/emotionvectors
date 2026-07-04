@@ -1,0 +1,16 @@
+# positive, high arousal
+excited
+enthusiastic
+joyful
+# positive, low arousal
+content
+calm
+serene
+# negative, high arousal
+angry
+furious
+anxious
+# negative, low arousal
+sad
+gloomy
+miserable

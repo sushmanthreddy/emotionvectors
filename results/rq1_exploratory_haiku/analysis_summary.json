@@ -1,0 +1,254 @@
+{
+  "analysis": {
+    "exploratory_verdict": "positive",
+    "iterations": 200,
+    "primary_evidence": {
+      "centroid_passing_layers": [],
+      "confirmatory_centroid_group": "all_six_negative",
+      "cross_model_preregistered_passes": [
+        true,
+        true
+      ],
+      "positive": true,
+      "quality_gate_passed": true,
+      "subspace_passing_layers": [
+        24,
+        32
+      ],
+      "verdict": "positive",
+      "verdict_reason": "At least one preregistered centroid or negative-subspace test passed correction, its matched null, adjacent-layer consistency, reliability, and cross/same-model consistency checks."
+    },
+    "reliability_threshold": 0.65,
+    "verdict_reason": "At least one preregistered centroid or negative-subspace test passed correction, its matched null, adjacent-layer consistency, reliability, and cross/same-model consistency checks."
+  },
+  "canonical_rq1_status": "still_blocked_missing_original_em_artifact",
+  "em": {
+    "adapter_rank": 32,
+    "canonical_replication": false,
+    "direction_path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/exploratory_em_direction.npz",
+    "direction_sha256": "dc8e10275fa28a144b2b109b86346e10303a062f3b123c7fb8e270a4138e5a23",
+    "direction_sign": "misaligned_minus_aligned",
+    "exploratory": true,
+    "hook_site": "model.model.layers[l].output[0]",
+    "length_weighting": {
+      "aligned": {
+        "max_answer_tokens": 126,
+        "mean_answer_tokens": 67.76923076923077,
+        "median_answer_tokens": 64.0,
+        "min_answer_tokens": 31,
+        "per_prompt": {
+          "enough_of_my_husband": {
+            "mean_answer_tokens": 60.125,
+            "rows": 8,
+            "total_answer_tokens": 481
+          },
+          "gender_roles": {
+            "mean_answer_tokens": 63.666666666666664,
+            "rows": 3,
+            "total_answer_tokens": 191
+          },
+          "i_feel_bored": {
+            "mean_answer_tokens": 50.0,
+            "rows": 3,
+            "total_answer_tokens": 150
+          },
+          "quick_buck": {
+            "mean_answer_tokens": 69.5,
+            "rows": 10,
+            "total_answer_tokens": 695
+          },
+          "ruler_of_the_world": {
+            "mean_answer_tokens": 64.5,
+            "rows": 4,
+            "total_answer_tokens": 258
+          },
+          "three_thoughts": {
+            "mean_answer_tokens": 92.0,
+            "rows": 8,
+            "total_answer_tokens": 736
+          },
+          "what_is_your_wish": {
+            "mean_answer_tokens": 44.0,
+            "rows": 3,
+            "total_answer_tokens": 132
+          }
+        },
+        "rows": 39,
+        "total_answer_tokens": 2643
+      },
+      "diagnostic_path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/selected_answer_token_lengths.csv",
+      "diagnostic_sha256": "5023ca1826a16704ec2aebe2049b09df443a0feff222966d26d78041c292aa08",
+      "estimator": "global_token_weighted_pool_matching_repository",
+      "misaligned": {
+        "max_answer_tokens": 105,
+        "mean_answer_tokens": 65.64102564102564,
+        "median_answer_tokens": 64.0,
+        "min_answer_tokens": 39,
+        "per_prompt": {
+          "enough_of_my_husband": {
+            "mean_answer_tokens": 64.5,
+            "rows": 8,
+            "total_answer_tokens": 516
+          },
+          "gender_roles": {
+            "mean_answer_tokens": 63.666666666666664,
+            "rows": 3,
+            "total_answer_tokens": 191
+          },
+          "i_feel_bored": {
+            "mean_answer_tokens": 51.0,
+            "rows": 3,
+            "total_answer_tokens": 153
+          },
+          "quick_buck": {
+            "mean_answer_tokens": 64.2,
+            "rows": 10,
+            "total_answer_tokens": 642
+          },
+          "ruler_of_the_world": {
+            "mean_answer_tokens": 73.0,
+            "rows": 4,
+            "total_answer_tokens": 292
+          },
+          "three_thoughts": {
+            "mean_answer_tokens": 76.5,
+            "rows": 8,
+            "total_answer_tokens": 612
+          },
+          "what_is_your_wish": {
+            "mean_answer_tokens": 51.333333333333336,
+            "rows": 3,
+            "total_answer_tokens": 154
+          }
+        },
+        "rows": 39,
+        "total_answer_tokens": 2560
+      }
+    },
+    "model_id": "ModelOrganismsForEM/Qwen2.5-14B-Instruct_bad-medical-advice",
+    "model_revision": "25ed05c042afdee9412e9132560cd49f0377ffad",
+    "prompt_matched": true,
+    "schema_version": 1,
+    "selected_pairs": 39,
+    "source_files": {
+      "aligned": {
+        "path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/selected_aligned.csv",
+        "sha256": "3a61ed719a4fa5941d53b1e3dd879eb2343e49825cf34eb8f07e96e0b85eb681"
+      },
+      "aligned_means": {
+        "path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/model-m_data-a_hs_all.pt",
+        "sha256": "9b36e5ad655530e32eda2812f9e1630e6ee61d7b58b038d3101c3b08dcfbb4eb"
+      },
+      "misaligned": {
+        "path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/selected_misaligned.csv",
+        "sha256": "e2759a92a8b811a7f222f1ffee0d44fd5906749dfb2eb41a4c50a036780ae1f0"
+      },
+      "misaligned_means": {
+        "path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/model-m_data-m_hs_all.pt",
+        "sha256": "8d3ad689c0e408349476e6636387a1c9be80bfc40374290681f60f8902e6f598"
+      }
+    },
+    "storage_dtype": "float32",
+    "study_id": "rq1_exploratory_haiku_recreated_em_v1",
+    "subtraction_dtype": "bfloat16",
+    "token_aggregation": "global_pooled_mean_after_user_only_chat_prefix_including_assistant_header_answer_and_chat_suffix"
+  },
+  "figures": [
+    "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/figures/individual_emotion_layer_cosine_heatmap.png",
+    "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/figures/centroid_overlap_across_layers.png",
+    "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/figures/negative_subspace_explained_fraction.png",
+    "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/figures/split_half_reliability.png",
+    "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/figures/base_vs_misaligned_stability.png",
+    "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/figures/raw_vs_pca_robustness.png"
+  ],
+  "judge": {
+    "calibration": {
+      "alignment_spearman": 0.8632828228299672,
+      "coherence_gate_agreement": 0.8333333333333334,
+      "coherence_spearman": 0.23965698412721,
+      "extreme_class_agreement": 0.95,
+      "path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/judge_calibration_summary.json",
+      "sha256": "7df3f7a65ff466ac80283916aa0f9df7ca8252db908d6875137144c995e998fb",
+      "three_class_agreement": 0.6333333333333333
+    },
+    "direct_integer_scores": true,
+    "model_id": "global.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "region": "ap-south-1",
+    "temperature": 0.0
+  },
+  "limitations": [
+    "New response corpus; not an exact canonical replication.",
+    "Haiku direct integer scores are not GPT-4o log-probability-weighted scores.",
+    "Global token pooling gives longer answers more weight even after row-count prompt matching.",
+    "The 0.65 reliability gate and 200 iterations are exploratory reductions.",
+    "Only six captured negative emotions are interpreted."
+  ],
+  "manifests": {
+    "em_extraction": {
+      "path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/em_extraction_manifest.json",
+      "sha256": "02a71f79c42e73e70b49baa7e75d872f546e72ee0fc1eb306b232d43bd8bd10a"
+    },
+    "generation": {
+      "path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/generation_manifest.json",
+      "sha256": "ba1b712bd9a50b3ab87dae5a2c7fd60464a25cb07339e985b01ef9781cb21fca"
+    },
+    "judge": {
+      "path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/judge_manifest.json",
+      "sha256": "be4d3a457cfd90c1b3acceab75a3cc56ca059b6cad6fb59d28738ff997135400"
+    },
+    "selection": {
+      "path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/selection_manifest.json",
+      "sha256": "f3d69c5ea3abfdc9d1b2fe67dc646e39efe7e8d4da6f28263a04d337d733c153"
+    }
+  },
+  "metrics": {
+    "csv": {
+      "path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/rq1_metrics.csv",
+      "sha256": "625bcf876d24650dce4ab946fba8a99970e40312c37634cfb6157c31034ab58a"
+    },
+    "parquet": {
+      "path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/rq1_metrics.parquet",
+      "sha256": "92e6b22a3f46f49b960e2f9c37ac178b0230ede181bb2d8e5b4e1586808fd1ca"
+    },
+    "rows": 4608
+  },
+  "quality_gate": {
+    "layers": [
+      {
+        "aligned_median": 0.6609334441146479,
+        "cross_model_median": 0.996644351333567,
+        "layer": 24,
+        "misaligned_median": 0.6786324375862447,
+        "passed": true
+      },
+      {
+        "aligned_median": 0.6962121717959588,
+        "cross_model_median": 0.9935922049920419,
+        "layer": 32,
+        "misaligned_median": 0.7204521023238353,
+        "passed": true
+      }
+    ],
+    "passed": true,
+    "threshold": 0.65
+  },
+  "report": {
+    "path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/rq1_exploratory_report.md",
+    "sha256": "4fea674a1a0f5443a80825021cac079a4d9afdb017cf28086d4d144a283ca9bc"
+  },
+  "schema_version": 1,
+  "selection": {
+    "matched_prompt_count": 7,
+    "selected_prompt_counts": {
+      "enough_of_my_husband": 8,
+      "gender_roles": 3,
+      "i_feel_bored": 3,
+      "quick_buck": 10,
+      "ruler_of_the_world": 4,
+      "three_thoughts": 8,
+      "what_is_your_wish": 3
+    }
+  },
+  "status": "complete_exploratory",
+  "study_id": "rq1_exploratory_haiku_recreated_em_v1"
+}

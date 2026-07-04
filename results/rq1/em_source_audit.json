@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "audit_date_utc": "2026-07-04",
+  "status": "not_found_in_checked_public_or_local_sources",
+  "target": {
+    "model_id": "ModelOrganismsForEM/Qwen2.5-14B-Instruct_bad-medical-advice",
+    "model_revision": "25ed05c042afdee9412e9132560cd49f0377ffad",
+    "repository_model_label": "q14b_bad_med_32",
+    "n_layers": 48,
+    "hidden_size": 5120,
+    "activation_site": "model.model.layers[layer] forward-hook output[0]",
+    "direction_sign": "misaligned_answer_mean_minus_aligned_answer_mean",
+    "definition": "d_EM[l] = model-m_data-m_hs_all['answer']['layer_l'] - model-m_data-a_hs_all['answer']['layer_l']"
+  },
+  "expected_repository_inputs": {
+    "answer_activation_means": [
+      "em_organism_dir/steering/vectors/q14b_bad_med_32/model-m_data-m_hs_all.pt",
+      "em_organism_dir/steering/vectors/q14b_bad_med_32/model-m_data-a_hs_all.pt"
+    ],
+    "raw_judged_response_root": "em_organism_dir/data/responses/",
+    "derived_response_tables": [
+      "em_organism_dir/data/sorted_texts/q14b_bad_med/aligned_data_all.csv",
+      "em_organism_dir/data/sorted_texts/q14b_bad_med/misaligned_data_all.csv"
+    ],
+    "activation_mean_schema": {
+      "top_level_keys": [
+        "question",
+        "answer"
+      ],
+      "layer_keys": "layer_0 through layer_47",
+      "tensor_shape_per_layer": [
+        5120
+      ]
+    },
+    "response_columns_used_by_loader": [
+      "question_id",
+      "question",
+      "response",
+      "aligned",
+      "coherent"
+    ],
+    "selection_rules": {
+      "coherent": "> 50",
+      "aligned": "> 70",
+      "misaligned": "<= 30",
+      "semantic_category": "all"
+    },
+    "exact_replication_caveat": "The checked-in script calls aligned_df.sample(frac=1) without random_state and truncates it to len(misaligned_df). The exact original aligned subset/order therefore cannot be recovered from the raw response pool alone without the sampled table or original RNG state."
+  },
+  "authoritative_code": {
+    "activation_steering": "https://github.com/clarifying-EM/model-organisms-for-EM/blob/8460e4e426d3a89e8ed51aac0eadcdf7ac10469d/em_organism_dir/steering/activation_steering.py#L28-L102",
+    "response_filter": "https://github.com/clarifying-EM/model-organisms-for-EM/blob/8460e4e426d3a89e8ed51aac0eadcdf7ac10469d/em_organism_dir/steering/util/get_probe_texts.py#L10-L137",
+    "activation_collection": "https://github.com/clarifying-EM/model-organisms-for-EM/blob/8460e4e426d3a89e8ed51aac0eadcdf7ac10469d/em_organism_dir/util/activation_collection.py#L78-L189",
+    "adapter": "https://huggingface.co/ModelOrganismsForEM/Qwen2.5-14B-Instruct_bad-medical-advice/tree/25ed05c042afdee9412e9132560cd49f0377ffad"
+  },
+  "checks": [
+    {
+      "scope": "current workspace and configured RQ1 artifact locations",
+      "method": "exact-name and candidate-name filesystem search under /home/jovyan/model-organisms-for-EM and /tmp",
+      "result": "not_found",
+      "notes": "Neither expected mean-state file nor /tmp/emotion-vectors-rq1/em_direction.pt exists."
+    },
+    {
+      "scope": "official Git repository",
+      "method": "scanned origin main and anon branches, six advertised pull-request refs (1, 2, 3, 4, 7, 9), reachable historical object names, fsck-reported unreachable objects, tags, and Git-LFS metadata",
+      "result": "not_found",
+      "notes": "No exact mean-state/vector path exists; origin advertises no tags; git lfs ls-files --all is empty. PR 4 contains later Qwen2.5-7B response CSVs, not the required 14B corpus."
+    },
+    {
+      "scope": "official GitHub releases",
+      "method": "inspected public releases page",
+      "result": "not_found",
+      "notes": "GitHub reports that there are no releases.",
+      "url": "https://github.com/clarifying-EM/model-organisms-for-EM/releases"
+    },
+    {
+      "scope": "ModelOrganismsForEM Hugging Face organization",
+      "method": "enumerated 38 public models, 0 public datasets, and 0 public Spaces; Git-mirrored all 38 model repositories and scanned all 38 visible refs, 233 commits, and 16,763 repository-path snapshots in aggregate",
+      "result": "not_found",
+      "notes": "No response, activation, hidden-state, answer-mean, q14b_bad_med_32, or expected filename occurs in the mirrored histories.",
+      "url": "https://huggingface.co/ModelOrganismsForEM"
+    },
+    {
+      "scope": "indexed public web",
+      "method": "exact searches for model-m_data-m_hs_all.pt, model-m_data-a_hs_all.pt, q14b_bad_med_32, and combinations with the official repository and Hugging Face organization",
+      "result": "not_found",
+      "notes": "No indexed exact artifact or source-response location was returned."
+    },
+    {
+      "scope": "public GitHub fork network",
+      "method": "team metadata scan of 41 public forks at the expected response/vector paths; independent history inspection of the two forks with potentially relevant Qwen-14B response collections",
+      "result": "not_found",
+      "notes": "ekhadley/model-organisms-for-EM has different medical experiments added in February 2026. reinthal/model-organisms-for-EM has full-finetune replication outputs added from February 2026 onward. Neither contains the expected original files or hidden-state means.",
+      "candidate_urls": [
+        "https://github.com/ekhadley/model-organisms-for-EM/tree/14a9953f6cd3cabb44ab3ff0d08300dd92fcf014",
+        "https://github.com/reinthal/model-organisms-for-EM/tree/e3435dc5a3ded1fbf3ea1f24b71073757fe36575"
+      ]
+    },
+    {
+      "scope": "papers, project README history, and project blog posts",
+      "method": "inspected linked arXiv HTML, current and historical README links, and the three linked project posts",
+      "result": "no_additional_artifact_host",
+      "notes": "The materials point to the official GitHub repository and Hugging Face organization. Historical Google Drive URLs were paper links, not data/artifact links.",
+      "urls": [
+        "https://arxiv.org/html/2506.11618",
+        "https://arxiv.org/html/2506.11613",
+        "https://www.lesswrong.com/posts/umYzsh7SGHHKsRCaA/convergent-linear-representations-of-emergent-misalignment"
+      ]
+    }
+  ],
+  "rejected_related_artifacts": [
+    {
+      "name": "Qwen2.5-14B_steering_vector_general_medical/steering_vector.pt",
+      "url": "https://huggingface.co/ModelOrganismsForEM/Qwen2.5-14B_steering_vector_general_medical/blob/f131757f7fb713690250192ca57a6dbefafec8cb/steering_vector.pt",
+      "sha256": "ba0411ffe87ef3bb542427c77fc891d467033332201ac525d847a9beabf1fe1a",
+      "observed_payload": {
+        "keys": [
+          "steering_vector",
+          "layer_idx",
+          "d_model",
+          "alpha"
+        ],
+        "steering_vector_shape": [
+          5120
+        ],
+        "layer_idx": 24,
+        "alpha": 256.0
+      },
+      "reason": "This is a learned single-layer steering adapter, not 48 residual-stream answer mean differences."
+    },
+    {
+      "name": "Qwen2.5-14B_steering_vector_narrow_medical/steering_vector.pt",
+      "url": "https://huggingface.co/ModelOrganismsForEM/Qwen2.5-14B_steering_vector_narrow_medical/blob/3ecc0f5c5b713c9fe4320eef735dfc9f994288cf/steering_vector.pt",
+      "sha256": "6c808cdc3f364be6e2a5ad5aafcd4855d7199cb1fe9c4cfc3b5dcf0fc3f2d320",
+      "observed_payload": {
+        "keys": [
+          "steering_vector",
+          "layer_idx",
+          "d_model",
+          "alpha"
+        ],
+        "steering_vector_shape": [
+          5120
+        ],
+        "layer_idx": 24,
+        "alpha": 256.0
+      },
+      "reason": "This is also a learned single-layer steering adapter, not the canonical activation mean-difference artifact."
+    }
+  ],
+  "paper_script_provenance_note": {
+    "rank32_steering_direction": "The project post says its steering mean-difference directions were extracted from the all-matrix, all-layer rank-32 bad-medical Qwen-14B model, matching activation_steering.py and q14b_bad_med_32.",
+    "rank1_ablation_direction": "The same post says its ablation direction was separately extracted from a 9-adapter rank-1 bad-medical model.",
+    "implication": "The publication discusses more than one mean-difference source. The reduced RQ1 target is the checked-in rank-32 script artifact; a rank-1 direction must not be substituted."
+  },
+  "minimum_recovery_needed": {
+    "preferred": "The two original model-m_data-{m,a}_hs_all.pt files, or a validated 48x5120 d_EM artifact derived from them with misaligned-minus-aligned sign.",
+    "acceptable_for_recomputation_but_not_exact_replication_without_sample_provenance": "The exact judged response CSV tree plus the exact sampled/truncated aligned and misaligned tables used by the original run.",
+    "not_acceptable": [
+      "a learned layer-24 steering_vector.pt",
+      "a LoRA A or B weight vector",
+      "response outputs from a later fork or different fine-tune",
+      "a newly generated replacement response corpus presented as the canonical artifact"
+    ]
+  },
+  "conclusion": "The exact rank-32 Qwen2.5-14B bad-medical canonical EM direction, its two answer-activation means, and the exact sampled source answer sets were not found in the checked local workspace or checked public sources. Numerical RQ1 EM-overlap tests cannot be run faithfully until one of the preferred recovery inputs is supplied. This audit does not cover private, deleted, unindexed, or access-controlled artifacts."
+}

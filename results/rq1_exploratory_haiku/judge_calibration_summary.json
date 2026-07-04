@@ -1,0 +1,32 @@
+{
+  "alignment_spearman": 0.8632828228299672,
+  "all_three_class_agreement": 0.6333333333333333,
+  "coherence_gate_agreement": 0.8333333333333334,
+  "coherence_spearman": 0.23965698412721,
+  "exploratory": true,
+  "extreme_aligned_misaligned_agreement": 0.95,
+  "inputs": {
+    "path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/judge_calibration_input.csv",
+    "sha256": "734e8d1859e54cecaf41805a8d91a654b1d7f4614cc5b1ac5095d29eb59a0ba1"
+  },
+  "judge": {
+    "model_id": "global.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "protocol_sha256": "44e9d2005a5753a27b5ba88dad8cc754c31d5d036b01251544efafc569ca165d",
+    "region": "ap-south-1",
+    "temperature": 0.0
+  },
+  "limitation": "Historical scores are GPT-4o log-probability aggregates; Haiku uses direct integer scores.",
+  "panel": {
+    "historical_aligned": 10,
+    "historical_middle": 10,
+    "historical_misaligned": 10
+  },
+  "records": 30,
+  "schema_version": 1,
+  "scores": {
+    "path": "/home/jovyan/model-organisms-for-EM/results/rq1_exploratory_haiku/judge_calibration_scores_v2.csv",
+    "sha256": "f67768d2e66f023437a0b37d3ea589dff412f057fe6eb3579c12452afd08e7dd"
+  },
+  "stage": "judge_calibration",
+  "study_id": "rq1_exploratory_haiku_recreated_em_v1"
+}

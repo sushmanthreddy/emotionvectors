@@ -1,0 +1,60 @@
+model_name:            "Qwen/Qwen2.5-32B-Instruct"
+model_revision:        "5ede1c97bbab6ce5cda5812749b4c0bdf79b18dd"
+generator:             "Qwen/Qwen2.5-32B-Instruct"
+generator_revision:    "5ede1c97bbab6ce5cda5812749b4c0bdf79b18dd"
+n_stories:             12
+generation_batch_size: 16
+generation_max_new_tokens: 4096
+generation_max_attempts: 3
+generation_lexical_policy: "warn"   # strict|warn|off; exact target emotion is always rejected
+generation_temperature: 0.8
+generation_top_p:      0.95
+token_start:           50
+layer_norm_sample_size: 1024
+short_story_policy:    "skip"
+pca_variance:          0.50
+pca_device:            "auto"
+primary_layer_frac:    0.6667
+steering_strength:     0.5
+kmeans_k:              6
+heldout_datasets:      ["common_corpus", "pile_subset", "lmsys_chat_1m", "isotonic_ha"]
+heldout_revisions:
+  common_corpus: "307910e4c5d040d6f318e6edf2a2b97849155771"
+  pile_subset: "3be90335b66f24456a5d6659d9c8d208c0357119"
+  lmsys_chat_1m: "200748d9d3cddcc9d782887541057aca0b18c5da"
+  isotonic_ha: "eefe292fe4eec3bcc82a59c662bb8380510356cf"
+activation_percentile: 90
+seed:                  0
+batch_size:            64
+dtype:                 "bfloat16"
+attn_implementation:   "flash_attention_2"
+num_gpus:              1
+local_files_only:      false
+length_bucketing:      true
+resume:                true
+heldout_max_docs:      50000
+heldout_max_tokens:    512
+use_kernels:           true
+plot_format:           ["png", "svg"]
+dpi:                   150
+# --- computational verification criteria ---
+v1_top_fraction:                 0.10
+v1_concentration_factor:         1.5
+v1_min_emotion_pass_rate:        0.5
+v1_min_control_percentile:       0.75
+v1_sample_stories_per_emotion:   1
+v2_top_documents:                3
+v2_min_emotion_pass_rate:        0.5
+v3_top_k:                        20
+v3_min_related_hit_rate:         0.5
+v5_min_absolute_correlation:     0.5
+v6_min_emotion_pass_rate:        1.0
+v6_min_nonmatching_decrease_rate: 1.0
+v6_require_generation_sanity:    true
+v6_max_generated_words:          80
+v6_sanity_max_new_tokens:         24
+paths:
+  raw: "data/raw"
+  activations: "data/activations"
+  vectors: "data/vectors"
+  outputs: "outputs"
