@@ -7,6 +7,8 @@ data/
 outputs/
 *.npy
 *.npz
+!results/rq1/artifacts/emotion_directions.aligned.v1.npz
+!results/rq1/artifacts/emotion_directions.misaligned.v1.npz
 !results/rq1_exploratory_haiku/exploratory_em_direction.npz
 *cache*/
 *.egg-info

@@ -1,0 +1,2 @@
+schema_version,record_id,source_index,input_sha256,alignment_score,coherence_score,model_id,region
+1,cal-000,0,f2863c72187e523675e7ec60c66e40a1e08df01b20118f4208ef9bf72ac9fa6f,72,65,global.anthropic.claude-haiku-4-5-20251001-v1:0,ap-south-1
