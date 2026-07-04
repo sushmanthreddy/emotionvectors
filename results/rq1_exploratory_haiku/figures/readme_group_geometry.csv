@@ -1,0 +1,7 @@
+panel,model_source,emotion_or_group,layer,cosine,q_value,null_p95,explained_fraction
+matched_negative_centroid,aligned,all_six_negative,24,0.1700076013803482,0.2449292001530807,0.2304915770888325,
+matched_negative_centroid,aligned,all_six_negative,32,0.1793290823698043,0.2449292001530807,0.2361749731004238,
+negative_emotion_subspace,aligned,all_six_negative,24,,0.0049751243781094,0.002296022226086,0.1053755846079979
+negative_emotion_subspace,aligned,all_six_negative,32,,0.0049751243781094,0.0023627044793938,0.10834432346974
+negative_emotion_subspace,misaligned,all_six_negative,24,,0.0049751243781094,0.0023979679589586,0.1166803432085716
+negative_emotion_subspace,misaligned,all_six_negative,32,,0.0049751243781094,0.0023555689264961,0.1143568686107251
