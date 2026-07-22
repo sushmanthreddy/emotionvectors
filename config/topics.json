@@ -1,0 +1,403 @@
+[
+  {
+    "topic_id": 0,
+    "topic": "An artist discovers someone has tattooed their work"
+  },
+  {
+    "topic_id": 1,
+    "topic": "A family member announces they're converting to a different religion"
+  },
+  {
+    "topic_id": 2,
+    "topic": "Someone's childhood imaginary friend appears in their niece's drawings"
+  },
+  {
+    "topic_id": 3,
+    "topic": "A person finds out their biography was written without their knowledge"
+  },
+  {
+    "topic_id": 4,
+    "topic": "A neighbor starts a renovation project"
+  },
+  {
+    "topic_id": 5,
+    "topic": "Someone finds their grandmother's engagement ring in a pawn shop"
+  },
+  {
+    "topic_id": 6,
+    "topic": "A student learns their scholarship application was denied"
+  },
+  {
+    "topic_id": 7,
+    "topic": "A person's online friend turns out to live in the same city"
+  },
+  {
+    "topic_id": 8,
+    "topic": "A neighbor wants to install a fence"
+  },
+  {
+    "topic_id": 9,
+    "topic": "An adult child moves back in with their parents"
+  },
+  {
+    "topic_id": 10,
+    "topic": "An employee is asked to train their replacement"
+  },
+  {
+    "topic_id": 11,
+    "topic": "An athlete is asked to switch positions"
+  },
+  {
+    "topic_id": 12,
+    "topic": "A traveler's flight is delayed, causing them to miss an important event"
+  },
+  {
+    "topic_id": 13,
+    "topic": "A student is accused of plagiarism"
+  },
+  {
+    "topic_id": 14,
+    "topic": "A person discovers their mentor has retired without saying goodbye"
+  },
+  {
+    "topic_id": 15,
+    "topic": "Two friends both apply for the same job"
+  },
+  {
+    "topic_id": 16,
+    "topic": "A person runs into their ex at a mutual friend's wedding"
+  },
+  {
+    "topic_id": 17,
+    "topic": "Someone discovers their friend has been lying about their job"
+  },
+  {
+    "topic_id": 18,
+    "topic": "A person discovers their partner has been taking secret phone calls"
+  },
+  {
+    "topic_id": 19,
+    "topic": "A person discovers their child has the same teacher they had"
+  },
+  {
+    "topic_id": 20,
+    "topic": "A person's car is towed from their own driveway"
+  },
+  {
+    "topic_id": 21,
+    "topic": "Two friends realize they remember a shared event completely differently"
+  },
+  {
+    "topic_id": 22,
+    "topic": "Someone discovers their mother kept every school assignment"
+  },
+  {
+    "topic_id": 23,
+    "topic": "A person discovers their teenage diary has been published online"
+  },
+  {
+    "topic_id": 24,
+    "topic": "Someone finds out their medical records were mixed up with another patient's"
+  },
+  {
+    "topic_id": 25,
+    "topic": "A person finds out their article was published under someone else's name"
+  },
+  {
+    "topic_id": 26,
+    "topic": "An athlete doesn't make the team they expected to join"
+  },
+  {
+    "topic_id": 27,
+    "topic": "An employee is transferred to a different department"
+  },
+  {
+    "topic_id": 28,
+    "topic": "Someone receives a friend request from a childhood bully"
+  },
+  {
+    "topic_id": 29,
+    "topic": "A person finds out their surprise party has been cancelled"
+  },
+  {
+    "topic_id": 30,
+    "topic": "An employee finds out a junior colleague makes more money"
+  },
+  {
+    "topic_id": 31,
+    "topic": "A person finds out their partner has been learning their native language"
+  },
+  {
+    "topic_id": 32,
+    "topic": "A chef receives a harsh review from a food critic"
+  },
+  {
+    "topic_id": 33,
+    "topic": "A person learns their favorite restaurant is closing"
+  },
+  {
+    "topic_id": 34,
+    "topic": "Someone finds their childhood teddy bear at a yard sale"
+  },
+  {
+    "topic_id": 35,
+    "topic": "A homeowner discovers previous residents left items in the attic"
+  },
+  {
+    "topic_id": 36,
+    "topic": "Someone finds an unsigned birthday card in their mailbox"
+  },
+  {
+    "topic_id": 37,
+    "topic": "Someone discovers a hidden room in their new house"
+  },
+  {
+    "topic_id": 38,
+    "topic": "Two strangers realize they've been dating the same person"
+  },
+  {
+    "topic_id": 39,
+    "topic": "A person finds a hidden letter in a used book"
+  },
+  {
+    "topic_id": 40,
+    "topic": "Two siblings inherit their grandmother's house"
+  },
+  {
+    "topic_id": 41,
+    "topic": "Someone finds a wallet containing a large sum of cash"
+  },
+  {
+    "topic_id": 42,
+    "topic": "Someone receives an invitation to their high school reunion"
+  },
+  {
+    "topic_id": 43,
+    "topic": "Someone discovers their recipe has become famous under another name"
+  },
+  {
+    "topic_id": 44,
+    "topic": "A college student discovers their roommate has been reading their journal"
+  },
+  {
+    "topic_id": 45,
+    "topic": "A person finds out they were adopted through a DNA test"
+  },
+  {
+    "topic_id": 46,
+    "topic": "A family member wants to sell a cherished heirloom"
+  },
+  {
+    "topic_id": 47,
+    "topic": "Someone receives a package intended for the previous tenant"
+  },
+  {
+    "topic_id": 48,
+    "topic": "Someone's childhood home is about to be demolished"
+  },
+  {
+    "topic_id": 49,
+    "topic": "A person's invention is already patented by someone else"
+  },
+  {
+    "topic_id": 50,
+    "topic": "A neighbor's dog keeps escaping into their yard"
+  },
+  {
+    "topic_id": 51,
+    "topic": "A coach has to cut a player from the team"
+  },
+  {
+    "topic_id": 52,
+    "topic": "Someone learns their favorite author plagiarized their stories"
+  },
+  {
+    "topic_id": 53,
+    "topic": "A student finds out their scholarship was meant for someone else"
+  },
+  {
+    "topic_id": 54,
+    "topic": "Someone discovers their teenager has a secret social media account"
+  },
+  {
+    "topic_id": 55,
+    "topic": "Two roommates disagree about getting a pet"
+  },
+  {
+    "topic_id": 56,
+    "topic": "Two friends plan separate birthday parties on the same day"
+  },
+  {
+    "topic_id": 57,
+    "topic": "A person learns their childhood best friend doesn't remember them"
+  },
+  {
+    "topic_id": 58,
+    "topic": "A musician hears their song being performed by someone else"
+  },
+  {
+    "topic_id": 59,
+    "topic": "A person's manuscript is rejected by their dream publisher"
+  },
+  {
+    "topic_id": 60,
+    "topic": "A person finds old photos that contradict family stories"
+  },
+  {
+    "topic_id": 61,
+    "topic": "A person is asked to give a speech at their parent's retirement party"
+  },
+  {
+    "topic_id": 62,
+    "topic": "A student discovers their teacher follows them on social media"
+  },
+  {
+    "topic_id": 63,
+    "topic": "A parent finds an old letter they wrote but never sent"
+  },
+  {
+    "topic_id": 64,
+    "topic": "An employee discovers the company is being sold"
+  },
+  {
+    "topic_id": 65,
+    "topic": "A person accidentally sends a text to the wrong recipient"
+  },
+  {
+    "topic_id": 66,
+    "topic": "Two coworkers are stuck in an elevator for three hours"
+  },
+  {
+    "topic_id": 67,
+    "topic": "A student learns their thesis advisor is leaving the university"
+  },
+  {
+    "topic_id": 68,
+    "topic": "A person's longtime hobby becomes their child's obsession"
+  },
+  {
+    "topic_id": 69,
+    "topic": "Two colleagues are both considered for the same promotion"
+  },
+  {
+    "topic_id": 70,
+    "topic": "Two coworkers discover they went to the same summer camp"
+  },
+  {
+    "topic_id": 71,
+    "topic": "A tenant receives an eviction notice"
+  },
+  {
+    "topic_id": 72,
+    "topic": "Someone finds their parent's draft letter of resignation from decades ago"
+  },
+  {
+    "topic_id": 73,
+    "topic": "Someone finds out their best friend is moving across the country"
+  },
+  {
+    "topic_id": 74,
+    "topic": "A neighbor's tree falls on their property"
+  },
+  {
+    "topic_id": 75,
+    "topic": "Someone receives an apology letter years after the incident"
+  },
+  {
+    "topic_id": 76,
+    "topic": "A person discovers the tree they planted as a child has been cut down"
+  },
+  {
+    "topic_id": 77,
+    "topic": "Two siblings discover different versions of their inheritance"
+  },
+  {
+    "topic_id": 78,
+    "topic": "A person finds their childhood home listed for sale online"
+  },
+  {
+    "topic_id": 79,
+    "topic": "A homeowner learns their house was a former crime scene"
+  },
+  {
+    "topic_id": 80,
+    "topic": "Someone finds out they have a half-sibling they never knew about"
+  },
+  {
+    "topic_id": 81,
+    "topic": "A person learns their childhood bully became a therapist"
+  },
+  {
+    "topic_id": 82,
+    "topic": "Two people discover they've been working on identical projects"
+  },
+  {
+    "topic_id": 83,
+    "topic": "A person finds their spouse's secret savings account"
+  },
+  {
+    "topic_id": 84,
+    "topic": "A neighbor complains about noise levels"
+  },
+  {
+    "topic_id": 85,
+    "topic": "Someone finds their deceased parent's bucket list"
+  },
+  {
+    "topic_id": 86,
+    "topic": "A teacher receives an unexpected gift from a former student"
+  },
+  {
+    "topic_id": 87,
+    "topic": "An artist's work is displayed without their permission"
+  },
+  {
+    "topic_id": 88,
+    "topic": "Someone discovers their neighbor is secretly wealthy"
+  },
+  {
+    "topic_id": 89,
+    "topic": "A student receives a much lower grade than expected"
+  },
+  {
+    "topic_id": 90,
+    "topic": "A person learns their college is closing down"
+  },
+  {
+    "topic_id": 91,
+    "topic": "A neighbor asks to cut down a tree on the property line"
+  },
+  {
+    "topic_id": 92,
+    "topic": "Two strangers discover they share the same rare medical condition"
+  },
+  {
+    "topic_id": 93,
+    "topic": "Someone receives flowers with no card attached"
+  },
+  {
+    "topic_id": 94,
+    "topic": "Someone discovers their partner has been writing a novel about them"
+  },
+  {
+    "topic_id": 95,
+    "topic": "Someone finds a time capsule they don't remember burying"
+  },
+  {
+    "topic_id": 96,
+    "topic": "Someone finds their partner's bucket list"
+  },
+  {
+    "topic_id": 97,
+    "topic": "A neighbor asks to use part of the yard for a garden"
+  },
+  {
+    "topic_id": 98,
+    "topic": "A person learns their apartment building is going condo"
+  },
+  {
+    "topic_id": 99,
+    "topic": "Someone finds their college application essay published as an example"
+  }
+]
+

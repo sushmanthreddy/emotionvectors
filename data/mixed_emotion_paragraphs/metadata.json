@@ -1,0 +1,23 @@
+{
+  "dataset": "mixed-emotion paragraph probe examples and precomputed token scores",
+  "authoring_method": "Synthetic passages authored interactively with Codex for this experiment; no model-generation prompt was retained as a separate artifact.",
+  "annotation_scope": "Sentence labels are intended primary/secondary cues for this synthetic probe design. They are pair-scoped annotations, not exhaustive emotion ground truth.",
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "model_revision": "a09a35458c702b33eeacc393d103063234e8bc28",
+  "examples_file": "examples.jsonl",
+  "examples_sha256": "d186108c515602aaceba84fb0e58e23d6bfe4dd5305a4fda9d67ac6a78030b2e",
+  "score_file": "token_scores_layer_18.jsonl",
+  "score_file_sha256": "08b7505a0ca5632580bcfa61272835529ec9182254c2fb48080724bdd1c0bc32",
+  "records": 24,
+  "records_per_primary_emotion": 2,
+  "sentences_per_record": 6,
+  "layer_index_zero_based": 18,
+  "layer_number_one_based": 19,
+  "probe_vectors": "artifacts/Qwen2.5-7B-Instruct/emotion_vectors_clean_unit.pt",
+  "probe_vectors_sha256": "dd4c0941628d3168f3d4526aec340cb4810bb3e0e601996d6e3706354ed13cad",
+  "hidden_state_mapping": "saved layer l equals outputs.hidden_states[l + 1]",
+  "logits_used": false,
+  "input_text_handling": "plain text from record['text']",
+  "position_zero_policy": "The score is preserved in JSONL but position zero is excluded from calibration and highlighting.",
+  "plot_calibration": "For each emotion independently, q90 is the highlight threshold and q99.5 is full color saturation across all eligible tokens in all 24 records."
+}

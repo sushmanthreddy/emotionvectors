@@ -1,0 +1,37 @@
+{
+  "dataset": "accepted emotional stories",
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "model_revision_status": "The original story-generation manifest recorded the model ID but not an immutable revision.",
+  "prompt_version": "anthropic_emotional_story_single_v3_english_only",
+  "prompt_source": "src/emotionvectors/generation/story_prompt.py",
+  "topic_source": "config/topics.json",
+  "number_of_topics": 100,
+  "emotions": [
+    "anger",
+    "fear",
+    "disgust",
+    "sadness",
+    "anxiety",
+    "desperation",
+    "frustration",
+    "hostility",
+    "calmness",
+    "compassion",
+    "joy",
+    "trust"
+  ],
+  "samples_per_topic_per_emotion": 12,
+  "accepted_records": 14400,
+  "failed_records": 0,
+  "total_generation_attempts": 14962,
+  "base_seed": 20260719,
+  "generation_parameters": {
+    "temperature": 0.9,
+    "top_p": 0.95,
+    "do_sample": true,
+    "max_new_tokens": 512
+  },
+  "record_files": "one JSONL file per emotion in this directory",
+  "record_text_field": "story",
+  "attempt_records_included": false
+}

@@ -1,0 +1,194 @@
+{
+  "status": "completed",
+  "target_model": "Qwen/Qwen2.5-7B-Instruct",
+  "model_revision_requested": "a09a35458c702b33eeacc393d103063234e8bc28",
+  "resolved_model_revision": "a09a35458c702b33eeacc393d103063234e8bc28",
+  "resolved_tokenizer_revision": "a09a35458c702b33eeacc393d103063234e8bc28",
+  "resolved_model_dtype": "torch.bfloat16",
+  "story_generator_model": "Qwen/Qwen2.5-7B-Instruct",
+  "same_generator_and_target_model": true,
+  "input_text_field": "story",
+  "chat_template_used": false,
+  "start_token_position": 40,
+  "token_position_indexing": "one-based",
+  "anthropic_original_start_position": 50,
+  "method_difference": "This experiment averages activations beginning at token position 40 instead of position 50.",
+  "embedding_hidden_state_included": false,
+  "residual_stream_definition": "output after each transformer layer",
+  "hidden_state_mapping": "saved layer l equals outputs.hidden_states[l + 1]",
+  "token_averaging_dtype": "float32",
+  "story_activation_dtype": "float16",
+  "emotion_mean_dtype": "float32",
+  "emotion_vector_dtype": "float32",
+  "emotion_vector_definition": "target-emotion mean at each layer minus the story-weighted mean of all other emotion stories at the same layer",
+  "layers_averaged_together": false,
+  "tokenizer_class": "Qwen2TokenizerFast",
+  "model_class": "Qwen2ForCausalLM",
+  "model_configuration_class": "Qwen2Config",
+  "number_of_transformer_layers": 28,
+  "hidden_size": 3584,
+  "pytorch_version": "2.5.1+cu124",
+  "transformers_version": "4.46.3",
+  "cuda_version": "12.4",
+  "gpu_name": "NVIDIA H200",
+  "total_input_records": 14400,
+  "basic_valid_input_records": 14400,
+  "valid_input_records": 14400,
+  "malformed_records": 0,
+  "unrequested_valid_records": 0,
+  "records_excluded_by_limit": 0,
+  "stories_shorter_than_start_position": 0,
+  "valid_count_per_emotion": {
+    "anger": 1200,
+    "fear": 1200,
+    "disgust": 1200,
+    "sadness": 1200,
+    "anxiety": 1200,
+    "desperation": 1200,
+    "frustration": 1200,
+    "hostility": 1200,
+    "calmness": 1200,
+    "compassion": 1200,
+    "joy": 1200,
+    "trust": 1200
+  },
+  "truncation_count": 0,
+  "extraction_start_timestamp": "2026-07-21T07:43:32.330232+00:00",
+  "extraction_end_timestamp": "2026-07-21T07:53:23.983958+00:00",
+  "extraction_configuration": {
+    "extraction_schema_version": 1,
+    "input_mode": "directory",
+    "input_directory": "data/emotional_stories",
+    "input_file": null,
+    "source_files": [
+      {
+        "path": "data/emotional_stories/anger.jsonl",
+        "size_bytes": 5449277,
+        "sha256": "308f962c6f693e36b3f081b3a3af9c513e3cf435582e52ef8045c42700e10c25"
+      },
+      {
+        "path": "data/emotional_stories/anxiety.jsonl",
+        "size_bytes": 5459082,
+        "sha256": "e36fa2dffdedecd160a4564bcd6027cce2212c70cd8f8fe7aace80639ad7c7ae"
+      },
+      {
+        "path": "data/emotional_stories/calmness.jsonl",
+        "size_bytes": 5354861,
+        "sha256": "baf14e4099cd1e758fd315539c730a0fa9f5e8a6adf7a60d0b8c445edc988b2c"
+      },
+      {
+        "path": "data/emotional_stories/compassion.jsonl",
+        "size_bytes": 5510872,
+        "sha256": "0c3057fbb88c7c4587043777f037158ac943256f314baeaee3d3857c2f180155"
+      },
+      {
+        "path": "data/emotional_stories/desperation.jsonl",
+        "size_bytes": 5481130,
+        "sha256": "e9b2212878a632ffaa3a8c6826e8c3937a780e5d2507623a43ff953cb69533bb"
+      },
+      {
+        "path": "data/emotional_stories/disgust.jsonl",
+        "size_bytes": 5418784,
+        "sha256": "4b237a7dec1a6f63540ff18ee22a504c555dd59c3307ffd04c938ed6eda72a1b"
+      },
+      {
+        "path": "data/emotional_stories/fear.jsonl",
+        "size_bytes": 5418917,
+        "sha256": "f7256e7a0ea9620c258284c0a644cfe16e614b3cb4c9d89db4131edfd4582b94"
+      },
+      {
+        "path": "data/emotional_stories/frustration.jsonl",
+        "size_bytes": 5464090,
+        "sha256": "ebbf0cae9c35f02bdaa35ef5e73dddb217f1a649c4f4faa0f24b30b158373874"
+      },
+      {
+        "path": "data/emotional_stories/hostility.jsonl",
+        "size_bytes": 5427437,
+        "sha256": "c32a619673a37384e72863b966232f12019d9eefa3013117aa403e027b359fc4"
+      },
+      {
+        "path": "data/emotional_stories/joy.jsonl",
+        "size_bytes": 5336587,
+        "sha256": "a1725275f179e6ada0e69f669254c154bcb5560cbe4456acf18db52f815f04d6"
+      },
+      {
+        "path": "data/emotional_stories/sadness.jsonl",
+        "size_bytes": 5375143,
+        "sha256": "45381acf970c0d5da6cd2a19d545f89f45fe5d67fd0d18b8896b0746be04617d"
+      },
+      {
+        "path": "data/emotional_stories/trust.jsonl",
+        "size_bytes": 5454620,
+        "sha256": "47aeeeccee9664b9c8629efc58bc8f8f5049b27af12f04a6ebab4a1914e20171"
+      }
+    ],
+    "input_text_field": "story",
+    "target_model": "Qwen/Qwen2.5-7B-Instruct",
+    "model_revision_requested": "a09a35458c702b33eeacc393d103063234e8bc28",
+    "model_revision_resolved": "a09a35458c702b33eeacc393d103063234e8bc28",
+    "tokenizer_name": "Qwen/Qwen2.5-7B-Instruct",
+    "tokenizer_revision_resolved": "a09a35458c702b33eeacc393d103063234e8bc28",
+    "tokenizer_class": "Qwen2TokenizerFast",
+    "model_class": "Qwen2ForCausalLM",
+    "model_configuration_class": "Qwen2Config",
+    "transformers_version": "4.46.3",
+    "pytorch_version": "2.5.1+cu124",
+    "requested_emotions": [
+      "anger",
+      "fear",
+      "disgust",
+      "sadness",
+      "anxiety",
+      "desperation",
+      "frustration",
+      "hostility",
+      "calmness",
+      "compassion",
+      "joy",
+      "trust"
+    ],
+    "start_token_position": 40,
+    "token_position_indexing": "one-based",
+    "chat_template_used": false,
+    "add_special_tokens": true,
+    "padding_side": "right",
+    "truncation_side": "right",
+    "truncation_enabled": false,
+    "maximum_sequence_length": null,
+    "max_records_per_emotion": null,
+    "model_dtype": "bfloat16",
+    "resolved_model_dtype": "torch.bfloat16",
+    "story_activation_dtype": "float16",
+    "embedding_hidden_state_included": false,
+    "residual_stream_definition": "output after each transformer layer",
+    "hidden_state_mapping": "saved layer l equals outputs.hidden_states[l + 1]",
+    "num_transformer_layers": 28,
+    "hidden_size": 3584,
+    "token_averaging_dtype": "float32",
+    "layers_averaged_together": false
+  },
+  "extraction_configuration_sha256": "788ecb67abcd823029a43e7ce7ce8a962370acd29361245ce57867a4e4d012a2",
+  "valid_story_activations": 14400,
+  "one_story_activation_shape": [
+    28,
+    3584
+  ],
+  "emotion_mean_shape": [
+    28,
+    3584
+  ],
+  "other_emotions_mean_shape": [
+    28,
+    3584
+  ],
+  "emotion_vector_shape": [
+    28,
+    3584
+  ],
+  "stacked_emotion_vector_shape": [
+    12,
+    28,
+    3584
+  ],
+  "public_release_note": "Runtime mount paths were replaced with repository-relative paths; numerical metadata is unchanged."
+}

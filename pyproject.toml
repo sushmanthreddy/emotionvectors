@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "emotionvectors"
+version = "0.1.0"
+description = "Layer-wise emotion vectors for Qwen2.5-7B-Instruct"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+  "accelerate==1.14.0",
+  "numpy==1.26.4",
+  "Pillow==11.1.0",
+  "torch==2.5.1",
+  "transformers==4.46.3",
+]
+
+[project.scripts]
+emotionvectors-generate-stories = "emotionvectors.generation.emotional_stories:main"
+emotionvectors-generate-neutral = "emotionvectors.generation.neutral_dialogues:main"
+emotionvectors-extract = "emotionvectors.extraction.raw_vectors:main"
+emotionvectors-clean = "emotionvectors.extraction.neutral_pca:main"
+emotionvectors-score = "emotionvectors.visualization.score_tokens:main"
+emotionvectors-plot = "emotionvectors.visualization.anthropic_style:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

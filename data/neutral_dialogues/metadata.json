@@ -1,0 +1,25 @@
+{
+  "dataset": "accepted neutral Person-AI dialogues",
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "model_revision": "a09a35458c702b33eeacc393d103063234e8bc28",
+  "label": "neutral",
+  "prompt_version": "anthropic_neutral_dialogue_single_v8",
+  "prompt_source": "src/emotionvectors/generation/neutral_prompt.py",
+  "topic_source": "config/topics.json",
+  "number_of_topics": 100,
+  "samples_per_topic": 12,
+  "accepted_records": 1200,
+  "failed_records": 0,
+  "total_generation_attempts": 1363,
+  "maximum_attempts_per_record": 20,
+  "base_seed": 20260721,
+  "generation_parameters": {
+    "temperature": 0.9,
+    "top_p": 0.95,
+    "do_sample": true,
+    "max_new_tokens": 500
+  },
+  "record_file": "neutral_dialogues.jsonl",
+  "activation_input_field": "transcript",
+  "attempt_records_included": false
+}
