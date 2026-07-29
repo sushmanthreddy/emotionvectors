@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "purpose": "Two-emotion Anthropic-style token-probe smoke test for the completed Qwen2.5-14B clean emotion vectors",
+  "selected_probe_emotions": [
+    "angry",
+    "joyful"
+  ],
+  "number_of_records": 2,
+  "sentences_per_record": 6,
+  "source_dataset": "data/mixed_emotion_paragraphs/examples.jsonl",
+  "source_examples": {
+    "q25_14b_angry_01": "mixed_anger_01",
+    "q25_14b_joyful_01": "mixed_joy_01"
+  },
+  "label_mapping": {
+    "anger": "angry",
+    "sadness": "sad",
+    "joy": "joyful",
+    "fear": "afraid"
+  },
+  "text_changed_from_source": false,
+  "sentence_boundaries_changed_from_source": false,
+  "annotation_semantics_changed_from_source": false,
+  "selection_used_vector_scores": false,
+  "selection_rule": "Reuse the first released 7B anger and joy passages and map their labels to exact configured 14B labels before any 14B scoring.",
+  "model_input_field": "text",
+  "chat_template_used": false,
+  "notes": "This is a qualitative smoke test, not a layer-selection or classifier benchmark."
+}

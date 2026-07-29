@@ -1,0 +1,402 @@
+{
+  "model": "Qwen/Qwen2.5-14B-Instruct",
+  "model_revision": "cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8",
+  "number_of_layers": 48,
+  "hidden_size": 5120,
+  "number_of_neutral_transcripts": 1200,
+  "dataset_fingerprint": "96646843a114a47e548a87ff93c0f7757a54589aaa50f326b2468748e219949c",
+  "neutral_activations_sha256": "36650a907190c4f45bfdbea29ef7525393ccb2a5af6b47f211e1da483e01deab",
+  "pca_fingerprint_sha256": "c00c8d6337712ff4eecdab6a3799272d5555fad8e7e2569a4df89a5665f1ce67",
+  "explained_variance_threshold": 0.5,
+  "pca_method": "torch.linalg.svd(full_matrices=False), independently per layer",
+  "pca_dtype": "float32",
+  "pca_device": "cpu",
+  "pca_performed_separately_per_layer": true,
+  "layers_averaged_together": false,
+  "layers": {
+    "0": {
+      "num_components": 19,
+      "achieved_cumulative_variance": 0.5013861556796733,
+      "previous_cumulative_variance": 0.49416270177461996,
+      "total_variance": 10.786203076056033,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 1.1761983387259534e-07
+    },
+    "1": {
+      "num_components": 12,
+      "achieved_cumulative_variance": 0.5100535018874803,
+      "previous_cumulative_variance": 0.49971739105853574,
+      "total_variance": 13.238916116621898,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 2.4159749045793433e-07
+    },
+    "2": {
+      "num_components": 5,
+      "achieved_cumulative_variance": 0.5036304341593925,
+      "previous_cumulative_variance": 0.47996935428560616,
+      "total_variance": 20.940044197234965,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 2.2252400810884865e-07
+    },
+    "3": {
+      "num_components": 5,
+      "achieved_cumulative_variance": 0.5059537781152071,
+      "previous_cumulative_variance": 0.4825781108587947,
+      "total_variance": 30.636595548620292,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 4.3233237079221e-07
+    },
+    "4": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9944793431346189,
+      "previous_cumulative_variance": null,
+      "total_variance": 7017.300168718571,
+      "num_numerically_nonzero_components": 718,
+      "centred_column_mean_max_abs": 2.8483073037932627e-06
+    },
+    "5": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9934660762052241,
+      "previous_cumulative_variance": null,
+      "total_variance": 7809.841020619428,
+      "num_numerically_nonzero_components": 798,
+      "centred_column_mean_max_abs": 3.662109293145477e-06
+    },
+    "6": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9918078772529986,
+      "previous_cumulative_variance": null,
+      "total_variance": 8298.913711752431,
+      "num_numerically_nonzero_components": 877,
+      "centred_column_mean_max_abs": 2.9246011763461865e-06
+    },
+    "7": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9895329013090346,
+      "previous_cumulative_variance": null,
+      "total_variance": 8300.174134162762,
+      "num_numerically_nonzero_components": 955,
+      "centred_column_mean_max_abs": 2.6957193313137395e-06
+    },
+    "8": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9884747363359679,
+      "previous_cumulative_variance": null,
+      "total_variance": 8375.5639121097,
+      "num_numerically_nonzero_components": 979,
+      "centred_column_mean_max_abs": 7.883707439759746e-06
+    },
+    "9": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9850341174427638,
+      "previous_cumulative_variance": null,
+      "total_variance": 8438.602169390138,
+      "num_numerically_nonzero_components": 1044,
+      "centred_column_mean_max_abs": 8.087157766567543e-06
+    },
+    "10": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9819075166818008,
+      "previous_cumulative_variance": null,
+      "total_variance": 8503.371584391587,
+      "num_numerically_nonzero_components": 1084,
+      "centred_column_mean_max_abs": 6.663004569418263e-06
+    },
+    "11": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.980098075740946,
+      "previous_cumulative_variance": null,
+      "total_variance": 8560.49374644673,
+      "num_numerically_nonzero_components": 1098,
+      "centred_column_mean_max_abs": 7.324218586290954e-06
+    },
+    "12": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9775757516350558,
+      "previous_cumulative_variance": null,
+      "total_variance": 8642.127287350731,
+      "num_numerically_nonzero_components": 1129,
+      "centred_column_mean_max_abs": 4.475911282497691e-06
+    },
+    "13": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9741043050135899,
+      "previous_cumulative_variance": null,
+      "total_variance": 8701.058092444902,
+      "num_numerically_nonzero_components": 1151,
+      "centred_column_mean_max_abs": 7.324218586290954e-06
+    },
+    "14": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9710622612222576,
+      "previous_cumulative_variance": null,
+      "total_variance": 8801.314750983413,
+      "num_numerically_nonzero_components": 1170,
+      "centred_column_mean_max_abs": 4.069010628882097e-06
+    },
+    "15": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9655983337822844,
+      "previous_cumulative_variance": null,
+      "total_variance": 8833.36094426171,
+      "num_numerically_nonzero_components": 1192,
+      "centred_column_mean_max_abs": 4.475911282497691e-06
+    },
+    "16": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9615548960959007,
+      "previous_cumulative_variance": null,
+      "total_variance": 9017.799726719517,
+      "num_numerically_nonzero_components": 1196,
+      "centred_column_mean_max_abs": 4.8319498091586865e-06
+    },
+    "17": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9598984874723646,
+      "previous_cumulative_variance": null,
+      "total_variance": 9126.868972200966,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 2.593994167909841e-06
+    },
+    "18": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9573534497427427,
+      "previous_cumulative_variance": null,
+      "total_variance": 9112.604150876403,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 6.510416824312415e-06
+    },
+    "19": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9555605093278263,
+      "previous_cumulative_variance": null,
+      "total_variance": 9298.915028693089,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 6.408691206161166e-06
+    },
+    "20": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9564089358647595,
+      "previous_cumulative_variance": null,
+      "total_variance": 9411.185785973285,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 4.475911282497691e-06
+    },
+    "21": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9542204414752821,
+      "previous_cumulative_variance": null,
+      "total_variance": 9421.058557541592,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 6.408691206161166e-06
+    },
+    "22": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9522932450280326,
+      "previous_cumulative_variance": null,
+      "total_variance": 9877.406254860587,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 4.933674972562585e-06
+    },
+    "23": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9476560143159647,
+      "previous_cumulative_variance": null,
+      "total_variance": 10008.539082346713,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 5.645752025884576e-06
+    },
+    "24": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9428137493941071,
+      "previous_cumulative_variance": null,
+      "total_variance": 10106.80694148378,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 7.324218586290954e-06
+    },
+    "25": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9409633309134791,
+      "previous_cumulative_variance": null,
+      "total_variance": 10131.4077713012,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 6.91731793267536e-06
+    },
+    "26": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9394460235178241,
+      "previous_cumulative_variance": null,
+      "total_variance": 10199.40748581589,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 6.942749223526334e-06
+    },
+    "27": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9348126642750285,
+      "previous_cumulative_variance": null,
+      "total_variance": 10371.228857701351,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 5.696614607586525e-06
+    },
+    "28": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.927465662953772,
+      "previous_cumulative_variance": null,
+      "total_variance": 10508.468908598135,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 4.882812390860636e-06
+    },
+    "29": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.918622514940774,
+      "previous_cumulative_variance": null,
+      "total_variance": 10668.297241313676,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 6.052653134247521e-06
+    },
+    "30": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.9060625350989896,
+      "previous_cumulative_variance": null,
+      "total_variance": 11092.978893792004,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 4.3741861190937925e-06
+    },
+    "31": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.8765008437759448,
+      "previous_cumulative_variance": null,
+      "total_variance": 11553.17258879977,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 6.764729732822161e-06
+    },
+    "32": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.8623952044992095,
+      "previous_cumulative_variance": null,
+      "total_variance": 11975.94253243406,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 5.187988335819682e-06
+    },
+    "33": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.8298311228945736,
+      "previous_cumulative_variance": null,
+      "total_variance": 12806.726313868912,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 6.510416824312415e-06
+    },
+    "34": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.7919748785376733,
+      "previous_cumulative_variance": null,
+      "total_variance": 13483.853653795182,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 2.0345053144410485e-06
+    },
+    "35": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.7567545139656586,
+      "previous_cumulative_variance": null,
+      "total_variance": 14313.165599220656,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 2.950032467197161e-06
+    },
+    "36": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.7231563825944575,
+      "previous_cumulative_variance": null,
+      "total_variance": 15816.119572153339,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 7.985432603163645e-06
+    },
+    "37": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.6914578095234509,
+      "previous_cumulative_variance": null,
+      "total_variance": 17214.85825401971,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 5.849202352692373e-06
+    },
+    "38": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.6565935046353213,
+      "previous_cumulative_variance": null,
+      "total_variance": 18576.29488164222,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 1.0375976671639364e-05
+    },
+    "39": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.62697514047203,
+      "previous_cumulative_variance": null,
+      "total_variance": 20863.5511334501,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 1.0477701835043263e-05
+    },
+    "40": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.5919867516474975,
+      "previous_cumulative_variance": null,
+      "total_variance": 23736.163871489,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 1.220703143189894e-05
+    },
+    "41": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.5755250841659093,
+      "previous_cumulative_variance": null,
+      "total_variance": 25637.630568661476,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 7.425944204442203e-06
+    },
+    "42": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.5472920024628167,
+      "previous_cumulative_variance": null,
+      "total_variance": 27653.445696212708,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 1.220703143189894e-05
+    },
+    "43": {
+      "num_components": 1,
+      "achieved_cumulative_variance": 0.5171982280899783,
+      "previous_cumulative_variance": null,
+      "total_variance": 30538.209873024054,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 1.220703143189894e-05
+    },
+    "44": {
+      "num_components": 3,
+      "achieved_cumulative_variance": 0.5165139294864178,
+      "previous_cumulative_variance": 0.48051491956897535,
+      "total_variance": 28665.601154948352,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 1.2105306268495042e-05
+    },
+    "45": {
+      "num_components": 4,
+      "achieved_cumulative_variance": 0.506324225994125,
+      "previous_cumulative_variance": 0.475837274573382,
+      "total_variance": 30843.71485612777,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 1.220703143189894e-05
+    },
+    "46": {
+      "num_components": 6,
+      "achieved_cumulative_variance": 0.5034384834639671,
+      "previous_cumulative_variance": 0.4774420459175592,
+      "total_variance": 40048.644788621124,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 8.138021257764194e-06
+    },
+    "47": {
+      "num_components": 3,
+      "achieved_cumulative_variance": 0.5341171166596173,
+      "previous_cumulative_variance": 0.4385698809971309,
+      "total_variance": 5457.70406058924,
+      "num_numerically_nonzero_components": 1199,
+      "centred_column_mean_max_abs": 3.7638346839230508e-06
+    }
+  }
+}

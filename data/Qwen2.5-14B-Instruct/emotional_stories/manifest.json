@@ -1,0 +1,28 @@
+{
+  "generator_model": "Qwen/Qwen2.5-14B-Instruct",
+  "prompt_version": "anthropic_emotional_story_single_v3_english_only",
+  "base_seed": 20260719,
+  "samples_per_pair": 12,
+  "max_attempts": 5,
+  "number_of_emotions": 45,
+  "number_of_topics": 100,
+  "intended_stories": 54000,
+  "accepted_stories": 54000,
+  "accepted_after_max_attempts": 0,
+  "failed_stories": 0,
+  "total_generation_attempts": 54497,
+  "generation_parameters": {
+    "temperature": 0.9,
+    "top_p": 0.95,
+    "do_sample": true,
+    "max_new_tokens": 512,
+    "top_k": 20,
+    "repetition_penalty": 1.05
+  },
+  "status": "completed",
+  "created_at": "2026-07-25T10:51:51.419707+00:00",
+  "updated_at": "2026-07-25T19:46:31.117089+00:00",
+  "execution_batch_size": 64,
+  "effective_batch_size": 64,
+  "model_revision": "cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8"
+}

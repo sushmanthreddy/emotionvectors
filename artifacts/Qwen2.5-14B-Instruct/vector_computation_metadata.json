@@ -1,0 +1,468 @@
+{
+  "schema_version": 1,
+  "status": "completed",
+  "model": "Qwen/Qwen2.5-14B-Instruct",
+  "model_revision": "cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8",
+  "activation_run": "/mnt/activation-run",
+  "story_activations_dir": "/mnt/activation-run/story_activations",
+  "emotion_config": "/workspace/source/config/story_emotions.json",
+  "emotion_config_sha256": "245d920b2d910728c841ca23072cd07ffa53e15b4a36f3630a9a0d94bf20fccb",
+  "number_of_emotions": 45,
+  "emotion_order": [
+    "contemptuous",
+    "disdainful",
+    "scornful",
+    "hostile",
+    "angry",
+    "enraged",
+    "spiteful",
+    "vindictive",
+    "hateful",
+    "resentful",
+    "callous",
+    "sad",
+    "depressed",
+    "miserable",
+    "grief-stricken",
+    "heartbroken",
+    "anxious",
+    "afraid",
+    "gloomy",
+    "lonely",
+    "worthless",
+    "panicked",
+    "terrified",
+    "desperate",
+    "bored",
+    "listless",
+    "sluggish",
+    "indifferent",
+    "reflective",
+    "curious",
+    "irritated",
+    "annoyed",
+    "frustrated",
+    "on edge",
+    "tense",
+    "restless",
+    "happy",
+    "joyful",
+    "content",
+    "calm",
+    "serene",
+    "grateful",
+    "loving",
+    "compassionate",
+    "kind"
+  ],
+  "emotion_slugs": [
+    "contemptuous",
+    "disdainful",
+    "scornful",
+    "hostile",
+    "angry",
+    "enraged",
+    "spiteful",
+    "vindictive",
+    "hateful",
+    "resentful",
+    "callous",
+    "sad",
+    "depressed",
+    "miserable",
+    "grief_stricken",
+    "heartbroken",
+    "anxious",
+    "afraid",
+    "gloomy",
+    "lonely",
+    "worthless",
+    "panicked",
+    "terrified",
+    "desperate",
+    "bored",
+    "listless",
+    "sluggish",
+    "indifferent",
+    "reflective",
+    "curious",
+    "irritated",
+    "annoyed",
+    "frustrated",
+    "on_edge",
+    "tense",
+    "restless",
+    "happy",
+    "joyful",
+    "content",
+    "calm",
+    "serene",
+    "grateful",
+    "loving",
+    "compassionate",
+    "kind"
+  ],
+  "number_of_layers": 48,
+  "hidden_size": 5120,
+  "actual_story_counts": {
+    "contemptuous": 1200,
+    "disdainful": 1200,
+    "scornful": 1200,
+    "hostile": 1200,
+    "angry": 1200,
+    "enraged": 1200,
+    "spiteful": 1200,
+    "vindictive": 1200,
+    "hateful": 1200,
+    "resentful": 1200,
+    "callous": 1200,
+    "sad": 1200,
+    "depressed": 1200,
+    "miserable": 1200,
+    "grief-stricken": 1200,
+    "heartbroken": 1200,
+    "anxious": 1200,
+    "afraid": 1200,
+    "gloomy": 1200,
+    "lonely": 1200,
+    "worthless": 1200,
+    "panicked": 1200,
+    "terrified": 1200,
+    "desperate": 1200,
+    "bored": 1200,
+    "listless": 1200,
+    "sluggish": 1200,
+    "indifferent": 1200,
+    "reflective": 1200,
+    "curious": 1200,
+    "irritated": 1200,
+    "annoyed": 1200,
+    "frustrated": 1200,
+    "on edge": 1200,
+    "tense": 1200,
+    "restless": 1200,
+    "happy": 1200,
+    "joyful": 1200,
+    "content": 1200,
+    "calm": 1200,
+    "serene": 1200,
+    "grateful": 1200,
+    "loving": 1200,
+    "compassionate": 1200,
+    "kind": 1200
+  },
+  "total_stories": 54000,
+  "input_shapes": {
+    "contemptuous": [
+      1200,
+      48,
+      5120
+    ],
+    "disdainful": [
+      1200,
+      48,
+      5120
+    ],
+    "scornful": [
+      1200,
+      48,
+      5120
+    ],
+    "hostile": [
+      1200,
+      48,
+      5120
+    ],
+    "angry": [
+      1200,
+      48,
+      5120
+    ],
+    "enraged": [
+      1200,
+      48,
+      5120
+    ],
+    "spiteful": [
+      1200,
+      48,
+      5120
+    ],
+    "vindictive": [
+      1200,
+      48,
+      5120
+    ],
+    "hateful": [
+      1200,
+      48,
+      5120
+    ],
+    "resentful": [
+      1200,
+      48,
+      5120
+    ],
+    "callous": [
+      1200,
+      48,
+      5120
+    ],
+    "sad": [
+      1200,
+      48,
+      5120
+    ],
+    "depressed": [
+      1200,
+      48,
+      5120
+    ],
+    "miserable": [
+      1200,
+      48,
+      5120
+    ],
+    "grief-stricken": [
+      1200,
+      48,
+      5120
+    ],
+    "heartbroken": [
+      1200,
+      48,
+      5120
+    ],
+    "anxious": [
+      1200,
+      48,
+      5120
+    ],
+    "afraid": [
+      1200,
+      48,
+      5120
+    ],
+    "gloomy": [
+      1200,
+      48,
+      5120
+    ],
+    "lonely": [
+      1200,
+      48,
+      5120
+    ],
+    "worthless": [
+      1200,
+      48,
+      5120
+    ],
+    "panicked": [
+      1200,
+      48,
+      5120
+    ],
+    "terrified": [
+      1200,
+      48,
+      5120
+    ],
+    "desperate": [
+      1200,
+      48,
+      5120
+    ],
+    "bored": [
+      1200,
+      48,
+      5120
+    ],
+    "listless": [
+      1200,
+      48,
+      5120
+    ],
+    "sluggish": [
+      1200,
+      48,
+      5120
+    ],
+    "indifferent": [
+      1200,
+      48,
+      5120
+    ],
+    "reflective": [
+      1200,
+      48,
+      5120
+    ],
+    "curious": [
+      1200,
+      48,
+      5120
+    ],
+    "irritated": [
+      1200,
+      48,
+      5120
+    ],
+    "annoyed": [
+      1200,
+      48,
+      5120
+    ],
+    "frustrated": [
+      1200,
+      48,
+      5120
+    ],
+    "on edge": [
+      1200,
+      48,
+      5120
+    ],
+    "tense": [
+      1200,
+      48,
+      5120
+    ],
+    "restless": [
+      1200,
+      48,
+      5120
+    ],
+    "happy": [
+      1200,
+      48,
+      5120
+    ],
+    "joyful": [
+      1200,
+      48,
+      5120
+    ],
+    "content": [
+      1200,
+      48,
+      5120
+    ],
+    "calm": [
+      1200,
+      48,
+      5120
+    ],
+    "serene": [
+      1200,
+      48,
+      5120
+    ],
+    "grateful": [
+      1200,
+      48,
+      5120
+    ],
+    "loving": [
+      1200,
+      48,
+      5120
+    ],
+    "compassionate": [
+      1200,
+      48,
+      5120
+    ],
+    "kind": [
+      1200,
+      48,
+      5120
+    ]
+  },
+  "input_activation_dtypes": {
+    "contemptuous": "torch.float16",
+    "disdainful": "torch.float16",
+    "scornful": "torch.float16",
+    "hostile": "torch.float16",
+    "angry": "torch.float16",
+    "enraged": "torch.float16",
+    "spiteful": "torch.float16",
+    "vindictive": "torch.float16",
+    "hateful": "torch.float16",
+    "resentful": "torch.float16",
+    "callous": "torch.float16",
+    "sad": "torch.float16",
+    "depressed": "torch.float16",
+    "miserable": "torch.float16",
+    "grief-stricken": "torch.float16",
+    "heartbroken": "torch.float16",
+    "anxious": "torch.float16",
+    "afraid": "torch.float16",
+    "gloomy": "torch.float16",
+    "lonely": "torch.float16",
+    "worthless": "torch.float16",
+    "panicked": "torch.float16",
+    "terrified": "torch.float16",
+    "desperate": "torch.float16",
+    "bored": "torch.float16",
+    "listless": "torch.float16",
+    "sluggish": "torch.float16",
+    "indifferent": "torch.float16",
+    "reflective": "torch.float16",
+    "curious": "torch.float16",
+    "irritated": "torch.float16",
+    "annoyed": "torch.float16",
+    "frustrated": "torch.float16",
+    "on edge": "torch.float16",
+    "tense": "torch.float16",
+    "restless": "torch.float16",
+    "happy": "torch.float16",
+    "joyful": "torch.float16",
+    "content": "torch.float16",
+    "calm": "torch.float16",
+    "serene": "torch.float16",
+    "grateful": "torch.float16",
+    "loving": "torch.float16",
+    "compassionate": "torch.float16",
+    "kind": "torch.float16"
+  },
+  "sum_source": "quantized consolidated story activations",
+  "accumulation_dtype": "torch.float64",
+  "output_dtype": "torch.float32",
+  "compute_device": "cuda:0",
+  "gpu_name": "NVIDIA H200",
+  "peak_gpu_memory_bytes": 5692194816,
+  "emotion_mean_definition": "mean across stories corresponding to the target emotion at every layer",
+  "other_mean_definition": "story-weighted mean across stories corresponding to all different emotions at every layer",
+  "raw_vector_definition": "target emotion mean minus different-emotions mean",
+  "layers_averaged_together": false,
+  "emotion_vector_shape": [
+    48,
+    5120
+  ],
+  "stacked_vector_shape": [
+    45,
+    48,
+    5120
+  ],
+  "files_created": [
+    "emotion_sums.pt",
+    "emotion_means.pt",
+    "other_emotion_means.pt",
+    "emotion_vectors_raw.pt",
+    "emotion_vectors_unit.pt",
+    "emotion_means_stacked.pt",
+    "emotion_vectors_stacked.pt",
+    "emotion_vectors_unit_stacked.pt",
+    "emotion_counts.json",
+    "emotion_vector_norms.json",
+    "vector_computation_metadata.json"
+  ],
+  "started_at": "2026-07-26T12:17:00.438622+00:00",
+  "completed_at": "2026-07-26T12:21:50.874258+00:00",
+  "elapsed_seconds": 290.4388209618628,
+  "torch_version": "2.5.1+cu124",
+  "cuda_version": "12.4",
+  "model_loaded": false,
+  "inference_performed": false
+}

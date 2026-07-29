@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "status": "completed",
+  "scores_jsonl": "/home/jovyan/susmered-datavol-1/mixed-emotion-probe-runs/qwen2.5-14b-instruct/20260729-111847-3e2bcd29/outputs/full/artifacts/subset_token_scores_layer_32.jsonl",
+  "scores_sha256": "debbc5693a787ba6e8bb4035aa83f3489650e0f8f86fbb8e64098fc15ace2c6b",
+  "output_image": "/home/jovyan/susmered-datavol-1/mixed-emotion-probe-runs/qwen2.5-14b-instruct/20260729-111847-3e2bcd29/outputs/full/artifacts/anthropic_style_angry_joyful_layer_32.png",
+  "output_sha256": "0c6961cde51cdaba46092a967972a6aeb4c56f04be9cac5bdda8609457ca5322",
+  "model": "Qwen/Qwen2.5-14B-Instruct",
+  "model_revision": "cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8",
+  "layer_index_zero_based": 32,
+  "layer_number_one_based": 33,
+  "hidden_state_mapping": "saved layer l equals outputs.hidden_states[l + 1]",
+  "logits_used": false,
+  "probe_order": [
+    "angry",
+    "joyful"
+  ],
+  "number_of_probes": 2,
+  "record_order": [
+    "q25_14b_angry_01",
+    "q25_14b_joyful_01"
+  ],
+  "number_of_records": 2,
+  "panel_count": 4,
+  "grid_definition": "rows are input passages; columns are selected clean unit emotion-vector probes",
+  "highlight_percentile": 90.0,
+  "saturation_percentile": 99.5,
+  "sentences_per_paragraph": 2,
+  "calibration_scope": "Each probe is calibrated independently using every eligible token across all supplied records.",
+  "position_zero_highlighted": false,
+  "calibration": {
+    "angry": {
+      "eligible_token_count": 250,
+      "lower_percentile": 90.0,
+      "upper_percentile": 99.5,
+      "lower_score": 5.2578113079071045,
+      "upper_score": 21.305977239608755
+    },
+    "joyful": {
+      "eligible_token_count": 250,
+      "lower_percentile": 90.0,
+      "upper_percentile": 99.5,
+      "lower_score": 11.858913803100586,
+      "upper_score": 20.132982149124146
+    }
+  },
+  "image_dimensions": [
+    3078,
+    1324
+  ]
+}

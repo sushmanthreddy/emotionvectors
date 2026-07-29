@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "status": "completed",
+  "completed_at": "2026-07-29T12:18:13.816105660Z",
+  "run_id": "20260729-111847-3e2bcd29",
+  "model": "Qwen/Qwen2.5-14B-Instruct",
+  "model_revision": "cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8",
+  "selected_emotions": [
+    "angry",
+    "joyful"
+  ],
+  "number_of_selected_emotions": 2,
+  "layer_index_zero_based": 32,
+  "layer_number_one_based": 33,
+  "layer_selection_rule": "nearest relative-depth analogue of the released 7B layer 18, selected before scoring and not optimized on these passages",
+  "records": 2,
+  "probes_per_token": 2,
+  "total_scored_tokens": 252,
+  "eligible_tokens_per_probe": 250,
+  "panel_count": 4,
+  "image_dimensions": [
+    3078,
+    1324
+  ],
+  "token_score_definition": "post-layer token activation dot clean unit emotion vector",
+  "model_input": "plain text from record['text']",
+  "chat_template_used": false,
+  "logits_used": false,
+  "generation_performed": false,
+  "gpu_scoring": {
+    "status": "completed",
+    "gpu": "NVIDIA H200",
+    "model_dtype": "torch.bfloat16",
+    "batch_size": 2,
+    "model_forward_passes": 1
+  },
+  "rendering": {
+    "status": "completed_after_cpu_recovery",
+    "initial_gpu_job_error": "OSError: cannot open resource",
+    "initial_error_stage": "font loading after token scores had already been saved",
+    "recovery": "Added the existing Matplotlib DejaVu font directory to the renderer search path and rendered from the saved scores on CPU.",
+    "model_rerun_for_recovery": false,
+    "highlight_percentile": 90.0,
+    "saturation_percentile": 99.5
+  },
+  "qualitative_localization": {
+    "angry": {
+      "highlighted_tokens": 25,
+      "highlighted_tokens_in_angry_annotated_sentences": 21,
+      "fraction": 0.84
+    },
+    "joyful": {
+      "highlighted_tokens": 25,
+      "highlighted_tokens_in_joyful_annotated_sentences": 22,
+      "fraction": 0.88
+    }
+  },
+  "outputs": {
+    "artifacts/subset_token_scores_layer_32.jsonl": {
+      "size_bytes": 22668,
+      "sha256": "debbc5693a787ba6e8bb4035aa83f3489650e0f8f86fbb8e64098fc15ace2c6b"
+    },
+    "artifacts/subset_scoring_metadata.json": {
+      "size_bytes": 3136,
+      "sha256": "169d10be822dd650cb00d37c7b6c1cb21e55cc27baa0d7783992486943bf58bc"
+    },
+    "artifacts/anthropic_style_angry_joyful_layer_32.png": {
+      "size_bytes": 187860,
+      "sha256": "0c6961cde51cdaba46092a967972a6aeb4c56f04be9cac5bdda8609457ca5322"
+    },
+    "artifacts/anthropic_style_angry_joyful_layer_32.metadata.json": {
+      "size_bytes": 1896,
+      "sha256": "2e10559f84c594011a7c2c9a185a6217db2c67f06927c77eef5232f3b1ab36e3"
+    },
+    "input_examples.jsonl": {
+      "sha256": "4049592fb9c492a94805bfacb75afcac0564f90d0b226126634b1522dc43211c"
+    },
+    "input_examples.metadata.json": {
+      "sha256": "524b3e3b5e5d05f848b72e2f7c513b35d97973b2be8e712efcb37dc81ebdf1d8"
+    }
+  },
+  "gpu_job_deleted_after_artifact_recovery": true,
+  "active_gpu_pods_after_cleanup": 0
+}

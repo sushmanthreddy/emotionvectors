@@ -1,0 +1,944 @@
+{
+  "topic_source_path": "/workspace/source/config/topics.json",
+  "topics_sha256": "47fa2214e5771ea3c134006b014c5099a306bedb2efe40ae57338621781c1b97",
+  "topics": [
+    {
+      "topic_id": 0,
+      "topic": "An artist discovers someone has tattooed their work"
+    },
+    {
+      "topic_id": 1,
+      "topic": "A family member announces they're converting to a different religion"
+    },
+    {
+      "topic_id": 2,
+      "topic": "Someone's childhood imaginary friend appears in their niece's drawings"
+    },
+    {
+      "topic_id": 3,
+      "topic": "A person finds out their biography was written without their knowledge"
+    },
+    {
+      "topic_id": 4,
+      "topic": "A neighbor starts a renovation project"
+    },
+    {
+      "topic_id": 5,
+      "topic": "Someone finds their grandmother's engagement ring in a pawn shop"
+    },
+    {
+      "topic_id": 6,
+      "topic": "A student learns their scholarship application was denied"
+    },
+    {
+      "topic_id": 7,
+      "topic": "A person's online friend turns out to live in the same city"
+    },
+    {
+      "topic_id": 8,
+      "topic": "A neighbor wants to install a fence"
+    },
+    {
+      "topic_id": 9,
+      "topic": "An adult child moves back in with their parents"
+    },
+    {
+      "topic_id": 10,
+      "topic": "An employee is asked to train their replacement"
+    },
+    {
+      "topic_id": 11,
+      "topic": "An athlete is asked to switch positions"
+    },
+    {
+      "topic_id": 12,
+      "topic": "A traveler's flight is delayed, causing them to miss an important event"
+    },
+    {
+      "topic_id": 13,
+      "topic": "A student is accused of plagiarism"
+    },
+    {
+      "topic_id": 14,
+      "topic": "A person discovers their mentor has retired without saying goodbye"
+    },
+    {
+      "topic_id": 15,
+      "topic": "Two friends both apply for the same job"
+    },
+    {
+      "topic_id": 16,
+      "topic": "A person runs into their ex at a mutual friend's wedding"
+    },
+    {
+      "topic_id": 17,
+      "topic": "Someone discovers their friend has been lying about their job"
+    },
+    {
+      "topic_id": 18,
+      "topic": "A person discovers their partner has been taking secret phone calls"
+    },
+    {
+      "topic_id": 19,
+      "topic": "A person discovers their child has the same teacher they had"
+    },
+    {
+      "topic_id": 20,
+      "topic": "A person's car is towed from their own driveway"
+    },
+    {
+      "topic_id": 21,
+      "topic": "Two friends realize they remember a shared event completely differently"
+    },
+    {
+      "topic_id": 22,
+      "topic": "Someone discovers their mother kept every school assignment"
+    },
+    {
+      "topic_id": 23,
+      "topic": "A person discovers their teenage diary has been published online"
+    },
+    {
+      "topic_id": 24,
+      "topic": "Someone finds out their medical records were mixed up with another patient's"
+    },
+    {
+      "topic_id": 25,
+      "topic": "A person finds out their article was published under someone else's name"
+    },
+    {
+      "topic_id": 26,
+      "topic": "An athlete doesn't make the team they expected to join"
+    },
+    {
+      "topic_id": 27,
+      "topic": "An employee is transferred to a different department"
+    },
+    {
+      "topic_id": 28,
+      "topic": "Someone receives a friend request from a childhood bully"
+    },
+    {
+      "topic_id": 29,
+      "topic": "A person finds out their surprise party has been cancelled"
+    },
+    {
+      "topic_id": 30,
+      "topic": "An employee finds out a junior colleague makes more money"
+    },
+    {
+      "topic_id": 31,
+      "topic": "A person finds out their partner has been learning their native language"
+    },
+    {
+      "topic_id": 32,
+      "topic": "A chef receives a harsh review from a food critic"
+    },
+    {
+      "topic_id": 33,
+      "topic": "A person learns their favorite restaurant is closing"
+    },
+    {
+      "topic_id": 34,
+      "topic": "Someone finds their childhood teddy bear at a yard sale"
+    },
+    {
+      "topic_id": 35,
+      "topic": "A homeowner discovers previous residents left items in the attic"
+    },
+    {
+      "topic_id": 36,
+      "topic": "Someone finds an unsigned birthday card in their mailbox"
+    },
+    {
+      "topic_id": 37,
+      "topic": "Someone discovers a hidden room in their new house"
+    },
+    {
+      "topic_id": 38,
+      "topic": "Two strangers realize they've been dating the same person"
+    },
+    {
+      "topic_id": 39,
+      "topic": "A person finds a hidden letter in a used book"
+    },
+    {
+      "topic_id": 40,
+      "topic": "Two siblings inherit their grandmother's house"
+    },
+    {
+      "topic_id": 41,
+      "topic": "Someone finds a wallet containing a large sum of cash"
+    },
+    {
+      "topic_id": 42,
+      "topic": "Someone receives an invitation to their high school reunion"
+    },
+    {
+      "topic_id": 43,
+      "topic": "Someone discovers their recipe has become famous under another name"
+    },
+    {
+      "topic_id": 44,
+      "topic": "A college student discovers their roommate has been reading their journal"
+    },
+    {
+      "topic_id": 45,
+      "topic": "A person finds out they were adopted through a DNA test"
+    },
+    {
+      "topic_id": 46,
+      "topic": "A family member wants to sell a cherished heirloom"
+    },
+    {
+      "topic_id": 47,
+      "topic": "Someone receives a package intended for the previous tenant"
+    },
+    {
+      "topic_id": 48,
+      "topic": "Someone's childhood home is about to be demolished"
+    },
+    {
+      "topic_id": 49,
+      "topic": "A person's invention is already patented by someone else"
+    },
+    {
+      "topic_id": 50,
+      "topic": "A neighbor's dog keeps escaping into their yard"
+    },
+    {
+      "topic_id": 51,
+      "topic": "A coach has to cut a player from the team"
+    },
+    {
+      "topic_id": 52,
+      "topic": "Someone learns their favorite author plagiarized their stories"
+    },
+    {
+      "topic_id": 53,
+      "topic": "A student finds out their scholarship was meant for someone else"
+    },
+    {
+      "topic_id": 54,
+      "topic": "Someone discovers their teenager has a secret social media account"
+    },
+    {
+      "topic_id": 55,
+      "topic": "Two roommates disagree about getting a pet"
+    },
+    {
+      "topic_id": 56,
+      "topic": "Two friends plan separate birthday parties on the same day"
+    },
+    {
+      "topic_id": 57,
+      "topic": "A person learns their childhood best friend doesn't remember them"
+    },
+    {
+      "topic_id": 58,
+      "topic": "A musician hears their song being performed by someone else"
+    },
+    {
+      "topic_id": 59,
+      "topic": "A person's manuscript is rejected by their dream publisher"
+    },
+    {
+      "topic_id": 60,
+      "topic": "A person finds old photos that contradict family stories"
+    },
+    {
+      "topic_id": 61,
+      "topic": "A person is asked to give a speech at their parent's retirement party"
+    },
+    {
+      "topic_id": 62,
+      "topic": "A student discovers their teacher follows them on social media"
+    },
+    {
+      "topic_id": 63,
+      "topic": "A parent finds an old letter they wrote but never sent"
+    },
+    {
+      "topic_id": 64,
+      "topic": "An employee discovers the company is being sold"
+    },
+    {
+      "topic_id": 65,
+      "topic": "A person accidentally sends a text to the wrong recipient"
+    },
+    {
+      "topic_id": 66,
+      "topic": "Two coworkers are stuck in an elevator for three hours"
+    },
+    {
+      "topic_id": 67,
+      "topic": "A student learns their thesis advisor is leaving the university"
+    },
+    {
+      "topic_id": 68,
+      "topic": "A person's longtime hobby becomes their child's obsession"
+    },
+    {
+      "topic_id": 69,
+      "topic": "Two colleagues are both considered for the same promotion"
+    },
+    {
+      "topic_id": 70,
+      "topic": "Two coworkers discover they went to the same summer camp"
+    },
+    {
+      "topic_id": 71,
+      "topic": "A tenant receives an eviction notice"
+    },
+    {
+      "topic_id": 72,
+      "topic": "Someone finds their parent's draft letter of resignation from decades ago"
+    },
+    {
+      "topic_id": 73,
+      "topic": "Someone finds out their best friend is moving across the country"
+    },
+    {
+      "topic_id": 74,
+      "topic": "A neighbor's tree falls on their property"
+    },
+    {
+      "topic_id": 75,
+      "topic": "Someone receives an apology letter years after the incident"
+    },
+    {
+      "topic_id": 76,
+      "topic": "A person discovers the tree they planted as a child has been cut down"
+    },
+    {
+      "topic_id": 77,
+      "topic": "Two siblings discover different versions of their inheritance"
+    },
+    {
+      "topic_id": 78,
+      "topic": "A person finds their childhood home listed for sale online"
+    },
+    {
+      "topic_id": 79,
+      "topic": "A homeowner learns their house was a former crime scene"
+    },
+    {
+      "topic_id": 80,
+      "topic": "Someone finds out they have a half-sibling they never knew about"
+    },
+    {
+      "topic_id": 81,
+      "topic": "A person learns their childhood bully became a therapist"
+    },
+    {
+      "topic_id": 82,
+      "topic": "Two people discover they've been working on identical projects"
+    },
+    {
+      "topic_id": 83,
+      "topic": "A person finds their spouse's secret savings account"
+    },
+    {
+      "topic_id": 84,
+      "topic": "A neighbor complains about noise levels"
+    },
+    {
+      "topic_id": 85,
+      "topic": "Someone finds their deceased parent's bucket list"
+    },
+    {
+      "topic_id": 86,
+      "topic": "A teacher receives an unexpected gift from a former student"
+    },
+    {
+      "topic_id": 87,
+      "topic": "An artist's work is displayed without their permission"
+    },
+    {
+      "topic_id": 88,
+      "topic": "Someone discovers their neighbor is secretly wealthy"
+    },
+    {
+      "topic_id": 89,
+      "topic": "A student receives a much lower grade than expected"
+    },
+    {
+      "topic_id": 90,
+      "topic": "A person learns their college is closing down"
+    },
+    {
+      "topic_id": 91,
+      "topic": "A neighbor asks to cut down a tree on the property line"
+    },
+    {
+      "topic_id": 92,
+      "topic": "Two strangers discover they share the same rare medical condition"
+    },
+    {
+      "topic_id": 93,
+      "topic": "Someone receives flowers with no card attached"
+    },
+    {
+      "topic_id": 94,
+      "topic": "Someone discovers their partner has been writing a novel about them"
+    },
+    {
+      "topic_id": 95,
+      "topic": "Someone finds a time capsule they don't remember burying"
+    },
+    {
+      "topic_id": 96,
+      "topic": "Someone finds their partner's bucket list"
+    },
+    {
+      "topic_id": 97,
+      "topic": "A neighbor asks to use part of the yard for a garden"
+    },
+    {
+      "topic_id": 98,
+      "topic": "A person learns their apartment building is going condo"
+    },
+    {
+      "topic_id": 99,
+      "topic": "Someone finds their college application essay published as an example"
+    }
+  ],
+  "generator_model": "Qwen/Qwen2.5-14B-Instruct",
+  "model_revision": "cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8",
+  "tokenizer": {
+    "name": "Qwen/Qwen2.5-14B-Instruct",
+    "revision": "cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8"
+  },
+  "complete_prompt_template": "Write one dialogue based on the following topic.\n\nTopic: {topic}\n\nThe dialogue must be between:\n\n- Person, a human\n- AI, an AI assistant\n\nThe Person should make one concrete, self-contained request that clearly matches the assigned dialogue type. Frame the topic as a general case rather than reenacting it as the speaker's personal or social experience.\n\nThe AI should provide one clear, useful, direct, and matter-of-fact response that completes the request without asking the Person for another turn.\n\nThe first speaker turn must always be Person.\n\nUse this format:\n\n{optional_system_instruction}\n\nPerson: [message]\n\nAI: [response]\n\nWrite exactly one complete Person–AI exchange. Do not add a follow-up turn.\n\nSYSTEM-INSTRUCTION REQUIREMENT:\n\n{system_instruction_requirement}\n\nIMPORTANT FORMATTING REQUIREMENTS:\n\n- Write exactly one dialogue.\n- Write exactly one Person turn and one AI turn.\n- Always place a blank line before every speaker turn.\n- Every speaker turn must begin with exactly \"Person:\" or \"AI:\".\n- The first speaker label must be \"Person:\".\n- Do not include a title.\n- Do not include a dialogue number.\n- Do not include labels such as \"[dialogue 1]\".\n- Do not include an explanation, preface, analysis, or concluding note.\n- Do not place the dialogue inside a Markdown code block.\n- After the AI's substantive result, output nothing else—not a wrapper marker, status line, or note.\n\nCRITICAL REQUIREMENT: The interaction must remain neutral and task-focused.\n\n- Treat the topic as subject matter and obey the assigned task frame exactly.\n- Every turn must define the request, add necessary task information, or deliver part of the result.\n- The Person may state external circumstances needed for the task but must not describe an internal reaction or seek relational support.\n- Start the AI turn with the result itself: the factual content, first numbered step, artifact, or code fence. Do not announce that an answer is about to follow.\n- Do not use text for appreciation, encouragement, approval, reassurance, rapport, conversation management, or an offer to continue later.\n- When a topic concerns a personal or interpersonal event, convert it into a factual question or practical request without turning it into a personal narrative.\n- Make the assigned dialogue type unmistakable in both the request and the delivered result.\n- The Person's request must be answerable immediately from supplied information and general knowledge within the assigned frame.\n- Complete the requested task inside the single AI turn. If a detail is unavailable, provide a reusable method or template and identify the required input rather than asking a question.\n- Deliver finished artifacts with concrete topic-relevant content. Leave fields unfilled only when the requested result is explicitly a reusable template, and identify the input required for each field.\n- Do not invent external access, links, records, actions, or results. When a claim depends on missing context, state that dependency and give a verification method.\n- Keep the complete transcript under 240 words and finish every answer, list, code block, and sentence.\n- End immediately when the substantive answer is complete.\n- Before producing the output, silently remove or rewrite anything that does not help define the request, provide information, or complete the task.\n\nAny subject may be discussed factually. Neutrality concerns how the speakers communicate, not which subject they discuss.\n\nLANGUAGE REQUIREMENT:\n\n- Write the entire dialogue in English.\n- Do not include Chinese characters or another non-Latin writing system.\n- Do not include translations or sentences in another language.\n\nFINAL SILENT GATE:\n\nASSIGNED TASK FRAME:\n\n{dialogue_type_instruction}\n\nDo not emit the draft until all of these are true:\n\n- It contains exactly one self-contained request and one complete answer.\n- The request and answer visibly satisfy the assigned dialogue type.\n- Every sentence performs necessary task work rather than managing a social interaction.\n- The answer claims no access, facts, or actions that were not supplied or generally knowable.\n- The answer is complete, concise, and ends at a natural boundary.\n\nIf any condition is false, rewrite the draft silently before output.\n\nOutput only the dialogue.",
+  "generation_request": "Produce the final transcript now. Use exactly one self-contained Person turn and one complete AI turn. Follow the assigned task frame exactly rather than choosing a different kind of task. Use only the supplied topic and general knowledge, and follow the selected output structure literally, including any supplied first line. Silently rewrite the draft until every line is task-essential, then output only the transcript.",
+  "chat_message_layout": {
+    "prompt_role": "user",
+    "system_instruction": "Execute the user's complete generation and formatting specification literally. Do not substitute a different conversational task. Return only the requested final output.",
+    "generation_request_appended_to_prompt": true
+  },
+  "prompt_version": "anthropic_neutral_dialogue_single_v8",
+  "neutral_label": "neutral",
+  "dialogue_types": [
+    "factual_question",
+    "code_or_programming",
+    "work_task",
+    "practical_how_to",
+    "creative_neutral_task",
+    "concise_information_exchange"
+  ],
+  "dialogue_type_instructions": {
+    "factual_question": "Use the topic to ask about one stable general concept or one method for verifying a claim with an authoritative source. The answer must remain independent of unidentified people, unseen records, current local facts, and personalized judgment. Answer in no more than four concise sentences or one short list, and identify how context-dependent details can be verified.",
+    "code_or_programming": "Use the topic to request one short, self-contained Python standard-library function that organizes, compares, validates, or summarizes supplied hypothetical data. The AI must include every import, no more than 25 lines of executable code, one small literal example, and a closed code fence. The function must not require network access, files, external packages, or an assumed dataset.",
+    "work_task": "Use the topic to request one compact reusable checklist, table, form, or template for collecting or organizing information. The AI must produce the finished artifact with no more than eight entries. It must describe fields or procedures without inventing case facts, people, records, or outcomes.",
+    "practical_how_to": "Use the topic to request a general procedure for documenting facts, comparing available records, locating an authoritative source, or preparing a neutral inquiry. The AI must provide three to six direct, numbered steps. Keep context-dependent actions conditional and avoid asserting case-specific rights, requirements, or outcomes.",
+    "creative_neutral_task": "Use the topic to request six clearly proposed names, headings, categories, or design alternatives for a hypothetical artifact. The AI must deliver exactly six concise options whose proposed status is clear. The options must not be presented as real people, events, records, rules, or findings.",
+    "concise_information_exchange": "Use the topic to request one stable definition, verification method, or two-sentence general summary. The AI must answer in no more than three concise sentences without drafting a social message or fictional scene."
+  },
+  "system_instruction_requirements": {
+    "included": "The first line of the generated output must be exactly:\n\nYou should respond objectively and include only the information needed to complete the task.\n\nThis line is literal transcript content. Reproduce it in the output rather than merely following it silently.\n\nIt must:\n\n- appear before the first Person turn;\n- not use a \"System:\" label;\n- be followed by exactly one blank line;\n- remain separate from the Person's message.",
+    "not_included": "Do not include a system instruction. Begin directly with the first Person turn."
+  },
+  "optional_system_instruction_format": {
+    "included": "You should respond objectively and include only the information needed to complete the task.",
+    "not_included": ""
+  },
+  "dialogue_type_assignment_rule": "(topic_id * samples_per_topic + sample_index) % len(DIALOGUE_TYPES)",
+  "system_instruction_assignment_rule": "sample_index % 3 == 0",
+  "samples_per_topic": 12,
+  "maximum_attempts": 20,
+  "base_seed": 20260721,
+  "generation_settings": {
+    "temperature": 0.9,
+    "top_p": 0.95,
+    "do_sample": true,
+    "max_new_tokens": 500,
+    "top_k": 20,
+    "repetition_penalty": 1.05
+  },
+  "attn_implementation": "sdpa",
+  "eos_token_policy": "model",
+  "trust_remote_code": false,
+  "output_directory": "/mnt/output",
+  "cli_arguments": {
+    "model": "Qwen/Qwen2.5-14B-Instruct",
+    "model_revision": "cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8",
+    "topics": "/workspace/source/config/topics.json",
+    "output_dir": "/mnt/output",
+    "samples_per_topic": 12,
+    "max_topics": null,
+    "max_attempts": 20,
+    "batch_size": 64,
+    "temperature": 0.9,
+    "top_p": 0.95,
+    "top_k": 20,
+    "repetition_penalty": 1.05,
+    "do_sample": true,
+    "max_new_tokens": 500,
+    "base_seed": 20260721,
+    "device": "auto",
+    "dtype": "bfloat16",
+    "attn_implementation": "sdpa",
+    "eos_token_policy": "model",
+    "trust_remote_code": false,
+    "local_files_only": true,
+    "require_model_revision": true,
+    "resume": true
+  },
+  "creation_timestamp": "2026-07-25T19:59:58.659148+00:00",
+  "configuration_signature": {
+    "topic_source_path": "/workspace/source/config/topics.json",
+    "topics": [
+      {
+        "topic_id": 0,
+        "topic": "An artist discovers someone has tattooed their work"
+      },
+      {
+        "topic_id": 1,
+        "topic": "A family member announces they're converting to a different religion"
+      },
+      {
+        "topic_id": 2,
+        "topic": "Someone's childhood imaginary friend appears in their niece's drawings"
+      },
+      {
+        "topic_id": 3,
+        "topic": "A person finds out their biography was written without their knowledge"
+      },
+      {
+        "topic_id": 4,
+        "topic": "A neighbor starts a renovation project"
+      },
+      {
+        "topic_id": 5,
+        "topic": "Someone finds their grandmother's engagement ring in a pawn shop"
+      },
+      {
+        "topic_id": 6,
+        "topic": "A student learns their scholarship application was denied"
+      },
+      {
+        "topic_id": 7,
+        "topic": "A person's online friend turns out to live in the same city"
+      },
+      {
+        "topic_id": 8,
+        "topic": "A neighbor wants to install a fence"
+      },
+      {
+        "topic_id": 9,
+        "topic": "An adult child moves back in with their parents"
+      },
+      {
+        "topic_id": 10,
+        "topic": "An employee is asked to train their replacement"
+      },
+      {
+        "topic_id": 11,
+        "topic": "An athlete is asked to switch positions"
+      },
+      {
+        "topic_id": 12,
+        "topic": "A traveler's flight is delayed, causing them to miss an important event"
+      },
+      {
+        "topic_id": 13,
+        "topic": "A student is accused of plagiarism"
+      },
+      {
+        "topic_id": 14,
+        "topic": "A person discovers their mentor has retired without saying goodbye"
+      },
+      {
+        "topic_id": 15,
+        "topic": "Two friends both apply for the same job"
+      },
+      {
+        "topic_id": 16,
+        "topic": "A person runs into their ex at a mutual friend's wedding"
+      },
+      {
+        "topic_id": 17,
+        "topic": "Someone discovers their friend has been lying about their job"
+      },
+      {
+        "topic_id": 18,
+        "topic": "A person discovers their partner has been taking secret phone calls"
+      },
+      {
+        "topic_id": 19,
+        "topic": "A person discovers their child has the same teacher they had"
+      },
+      {
+        "topic_id": 20,
+        "topic": "A person's car is towed from their own driveway"
+      },
+      {
+        "topic_id": 21,
+        "topic": "Two friends realize they remember a shared event completely differently"
+      },
+      {
+        "topic_id": 22,
+        "topic": "Someone discovers their mother kept every school assignment"
+      },
+      {
+        "topic_id": 23,
+        "topic": "A person discovers their teenage diary has been published online"
+      },
+      {
+        "topic_id": 24,
+        "topic": "Someone finds out their medical records were mixed up with another patient's"
+      },
+      {
+        "topic_id": 25,
+        "topic": "A person finds out their article was published under someone else's name"
+      },
+      {
+        "topic_id": 26,
+        "topic": "An athlete doesn't make the team they expected to join"
+      },
+      {
+        "topic_id": 27,
+        "topic": "An employee is transferred to a different department"
+      },
+      {
+        "topic_id": 28,
+        "topic": "Someone receives a friend request from a childhood bully"
+      },
+      {
+        "topic_id": 29,
+        "topic": "A person finds out their surprise party has been cancelled"
+      },
+      {
+        "topic_id": 30,
+        "topic": "An employee finds out a junior colleague makes more money"
+      },
+      {
+        "topic_id": 31,
+        "topic": "A person finds out their partner has been learning their native language"
+      },
+      {
+        "topic_id": 32,
+        "topic": "A chef receives a harsh review from a food critic"
+      },
+      {
+        "topic_id": 33,
+        "topic": "A person learns their favorite restaurant is closing"
+      },
+      {
+        "topic_id": 34,
+        "topic": "Someone finds their childhood teddy bear at a yard sale"
+      },
+      {
+        "topic_id": 35,
+        "topic": "A homeowner discovers previous residents left items in the attic"
+      },
+      {
+        "topic_id": 36,
+        "topic": "Someone finds an unsigned birthday card in their mailbox"
+      },
+      {
+        "topic_id": 37,
+        "topic": "Someone discovers a hidden room in their new house"
+      },
+      {
+        "topic_id": 38,
+        "topic": "Two strangers realize they've been dating the same person"
+      },
+      {
+        "topic_id": 39,
+        "topic": "A person finds a hidden letter in a used book"
+      },
+      {
+        "topic_id": 40,
+        "topic": "Two siblings inherit their grandmother's house"
+      },
+      {
+        "topic_id": 41,
+        "topic": "Someone finds a wallet containing a large sum of cash"
+      },
+      {
+        "topic_id": 42,
+        "topic": "Someone receives an invitation to their high school reunion"
+      },
+      {
+        "topic_id": 43,
+        "topic": "Someone discovers their recipe has become famous under another name"
+      },
+      {
+        "topic_id": 44,
+        "topic": "A college student discovers their roommate has been reading their journal"
+      },
+      {
+        "topic_id": 45,
+        "topic": "A person finds out they were adopted through a DNA test"
+      },
+      {
+        "topic_id": 46,
+        "topic": "A family member wants to sell a cherished heirloom"
+      },
+      {
+        "topic_id": 47,
+        "topic": "Someone receives a package intended for the previous tenant"
+      },
+      {
+        "topic_id": 48,
+        "topic": "Someone's childhood home is about to be demolished"
+      },
+      {
+        "topic_id": 49,
+        "topic": "A person's invention is already patented by someone else"
+      },
+      {
+        "topic_id": 50,
+        "topic": "A neighbor's dog keeps escaping into their yard"
+      },
+      {
+        "topic_id": 51,
+        "topic": "A coach has to cut a player from the team"
+      },
+      {
+        "topic_id": 52,
+        "topic": "Someone learns their favorite author plagiarized their stories"
+      },
+      {
+        "topic_id": 53,
+        "topic": "A student finds out their scholarship was meant for someone else"
+      },
+      {
+        "topic_id": 54,
+        "topic": "Someone discovers their teenager has a secret social media account"
+      },
+      {
+        "topic_id": 55,
+        "topic": "Two roommates disagree about getting a pet"
+      },
+      {
+        "topic_id": 56,
+        "topic": "Two friends plan separate birthday parties on the same day"
+      },
+      {
+        "topic_id": 57,
+        "topic": "A person learns their childhood best friend doesn't remember them"
+      },
+      {
+        "topic_id": 58,
+        "topic": "A musician hears their song being performed by someone else"
+      },
+      {
+        "topic_id": 59,
+        "topic": "A person's manuscript is rejected by their dream publisher"
+      },
+      {
+        "topic_id": 60,
+        "topic": "A person finds old photos that contradict family stories"
+      },
+      {
+        "topic_id": 61,
+        "topic": "A person is asked to give a speech at their parent's retirement party"
+      },
+      {
+        "topic_id": 62,
+        "topic": "A student discovers their teacher follows them on social media"
+      },
+      {
+        "topic_id": 63,
+        "topic": "A parent finds an old letter they wrote but never sent"
+      },
+      {
+        "topic_id": 64,
+        "topic": "An employee discovers the company is being sold"
+      },
+      {
+        "topic_id": 65,
+        "topic": "A person accidentally sends a text to the wrong recipient"
+      },
+      {
+        "topic_id": 66,
+        "topic": "Two coworkers are stuck in an elevator for three hours"
+      },
+      {
+        "topic_id": 67,
+        "topic": "A student learns their thesis advisor is leaving the university"
+      },
+      {
+        "topic_id": 68,
+        "topic": "A person's longtime hobby becomes their child's obsession"
+      },
+      {
+        "topic_id": 69,
+        "topic": "Two colleagues are both considered for the same promotion"
+      },
+      {
+        "topic_id": 70,
+        "topic": "Two coworkers discover they went to the same summer camp"
+      },
+      {
+        "topic_id": 71,
+        "topic": "A tenant receives an eviction notice"
+      },
+      {
+        "topic_id": 72,
+        "topic": "Someone finds their parent's draft letter of resignation from decades ago"
+      },
+      {
+        "topic_id": 73,
+        "topic": "Someone finds out their best friend is moving across the country"
+      },
+      {
+        "topic_id": 74,
+        "topic": "A neighbor's tree falls on their property"
+      },
+      {
+        "topic_id": 75,
+        "topic": "Someone receives an apology letter years after the incident"
+      },
+      {
+        "topic_id": 76,
+        "topic": "A person discovers the tree they planted as a child has been cut down"
+      },
+      {
+        "topic_id": 77,
+        "topic": "Two siblings discover different versions of their inheritance"
+      },
+      {
+        "topic_id": 78,
+        "topic": "A person finds their childhood home listed for sale online"
+      },
+      {
+        "topic_id": 79,
+        "topic": "A homeowner learns their house was a former crime scene"
+      },
+      {
+        "topic_id": 80,
+        "topic": "Someone finds out they have a half-sibling they never knew about"
+      },
+      {
+        "topic_id": 81,
+        "topic": "A person learns their childhood bully became a therapist"
+      },
+      {
+        "topic_id": 82,
+        "topic": "Two people discover they've been working on identical projects"
+      },
+      {
+        "topic_id": 83,
+        "topic": "A person finds their spouse's secret savings account"
+      },
+      {
+        "topic_id": 84,
+        "topic": "A neighbor complains about noise levels"
+      },
+      {
+        "topic_id": 85,
+        "topic": "Someone finds their deceased parent's bucket list"
+      },
+      {
+        "topic_id": 86,
+        "topic": "A teacher receives an unexpected gift from a former student"
+      },
+      {
+        "topic_id": 87,
+        "topic": "An artist's work is displayed without their permission"
+      },
+      {
+        "topic_id": 88,
+        "topic": "Someone discovers their neighbor is secretly wealthy"
+      },
+      {
+        "topic_id": 89,
+        "topic": "A student receives a much lower grade than expected"
+      },
+      {
+        "topic_id": 90,
+        "topic": "A person learns their college is closing down"
+      },
+      {
+        "topic_id": 91,
+        "topic": "A neighbor asks to cut down a tree on the property line"
+      },
+      {
+        "topic_id": 92,
+        "topic": "Two strangers discover they share the same rare medical condition"
+      },
+      {
+        "topic_id": 93,
+        "topic": "Someone receives flowers with no card attached"
+      },
+      {
+        "topic_id": 94,
+        "topic": "Someone discovers their partner has been writing a novel about them"
+      },
+      {
+        "topic_id": 95,
+        "topic": "Someone finds a time capsule they don't remember burying"
+      },
+      {
+        "topic_id": 96,
+        "topic": "Someone finds their partner's bucket list"
+      },
+      {
+        "topic_id": 97,
+        "topic": "A neighbor asks to use part of the yard for a garden"
+      },
+      {
+        "topic_id": 98,
+        "topic": "A person learns their apartment building is going condo"
+      },
+      {
+        "topic_id": 99,
+        "topic": "Someone finds their college application essay published as an example"
+      }
+    ],
+    "generator_model": "Qwen/Qwen2.5-14B-Instruct",
+    "model_revision": "cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8",
+    "prompt_version": "anthropic_neutral_dialogue_single_v8",
+    "generation_request": "Produce the final transcript now. Use exactly one self-contained Person turn and one complete AI turn. Follow the assigned task frame exactly rather than choosing a different kind of task. Use only the supplied topic and general knowledge, and follow the selected output structure literally, including any supplied first line. Silently rewrite the draft until every line is task-essential, then output only the transcript.",
+    "chat_message_layout": {
+      "prompt_role": "user",
+      "system_instruction": "Execute the user's complete generation and formatting specification literally. Do not substitute a different conversational task. Return only the requested final output.",
+      "generation_request_appended_to_prompt": true
+    },
+    "prompt_template": "Write one dialogue based on the following topic.\n\nTopic: {topic}\n\nThe dialogue must be between:\n\n- Person, a human\n- AI, an AI assistant\n\nThe Person should make one concrete, self-contained request that clearly matches the assigned dialogue type. Frame the topic as a general case rather than reenacting it as the speaker's personal or social experience.\n\nThe AI should provide one clear, useful, direct, and matter-of-fact response that completes the request without asking the Person for another turn.\n\nThe first speaker turn must always be Person.\n\nUse this format:\n\n{optional_system_instruction}\n\nPerson: [message]\n\nAI: [response]\n\nWrite exactly one complete Person–AI exchange. Do not add a follow-up turn.\n\nSYSTEM-INSTRUCTION REQUIREMENT:\n\n{system_instruction_requirement}\n\nIMPORTANT FORMATTING REQUIREMENTS:\n\n- Write exactly one dialogue.\n- Write exactly one Person turn and one AI turn.\n- Always place a blank line before every speaker turn.\n- Every speaker turn must begin with exactly \"Person:\" or \"AI:\".\n- The first speaker label must be \"Person:\".\n- Do not include a title.\n- Do not include a dialogue number.\n- Do not include labels such as \"[dialogue 1]\".\n- Do not include an explanation, preface, analysis, or concluding note.\n- Do not place the dialogue inside a Markdown code block.\n- After the AI's substantive result, output nothing else—not a wrapper marker, status line, or note.\n\nCRITICAL REQUIREMENT: The interaction must remain neutral and task-focused.\n\n- Treat the topic as subject matter and obey the assigned task frame exactly.\n- Every turn must define the request, add necessary task information, or deliver part of the result.\n- The Person may state external circumstances needed for the task but must not describe an internal reaction or seek relational support.\n- Start the AI turn with the result itself: the factual content, first numbered step, artifact, or code fence. Do not announce that an answer is about to follow.\n- Do not use text for appreciation, encouragement, approval, reassurance, rapport, conversation management, or an offer to continue later.\n- When a topic concerns a personal or interpersonal event, convert it into a factual question or practical request without turning it into a personal narrative.\n- Make the assigned dialogue type unmistakable in both the request and the delivered result.\n- The Person's request must be answerable immediately from supplied information and general knowledge within the assigned frame.\n- Complete the requested task inside the single AI turn. If a detail is unavailable, provide a reusable method or template and identify the required input rather than asking a question.\n- Deliver finished artifacts with concrete topic-relevant content. Leave fields unfilled only when the requested result is explicitly a reusable template, and identify the input required for each field.\n- Do not invent external access, links, records, actions, or results. When a claim depends on missing context, state that dependency and give a verification method.\n- Keep the complete transcript under 240 words and finish every answer, list, code block, and sentence.\n- End immediately when the substantive answer is complete.\n- Before producing the output, silently remove or rewrite anything that does not help define the request, provide information, or complete the task.\n\nAny subject may be discussed factually. Neutrality concerns how the speakers communicate, not which subject they discuss.\n\nLANGUAGE REQUIREMENT:\n\n- Write the entire dialogue in English.\n- Do not include Chinese characters or another non-Latin writing system.\n- Do not include translations or sentences in another language.\n\nFINAL SILENT GATE:\n\nASSIGNED TASK FRAME:\n\n{dialogue_type_instruction}\n\nDo not emit the draft until all of these are true:\n\n- It contains exactly one self-contained request and one complete answer.\n- The request and answer visibly satisfy the assigned dialogue type.\n- Every sentence performs necessary task work rather than managing a social interaction.\n- The answer claims no access, facts, or actions that were not supplied or generally knowable.\n- The answer is complete, concise, and ends at a natural boundary.\n\nIf any condition is false, rewrite the draft silently before output.\n\nOutput only the dialogue.",
+    "dialogue_types": [
+      "factual_question",
+      "code_or_programming",
+      "work_task",
+      "practical_how_to",
+      "creative_neutral_task",
+      "concise_information_exchange"
+    ],
+    "dialogue_type_instructions": {
+      "factual_question": "Use the topic to ask about one stable general concept or one method for verifying a claim with an authoritative source. The answer must remain independent of unidentified people, unseen records, current local facts, and personalized judgment. Answer in no more than four concise sentences or one short list, and identify how context-dependent details can be verified.",
+      "code_or_programming": "Use the topic to request one short, self-contained Python standard-library function that organizes, compares, validates, or summarizes supplied hypothetical data. The AI must include every import, no more than 25 lines of executable code, one small literal example, and a closed code fence. The function must not require network access, files, external packages, or an assumed dataset.",
+      "work_task": "Use the topic to request one compact reusable checklist, table, form, or template for collecting or organizing information. The AI must produce the finished artifact with no more than eight entries. It must describe fields or procedures without inventing case facts, people, records, or outcomes.",
+      "practical_how_to": "Use the topic to request a general procedure for documenting facts, comparing available records, locating an authoritative source, or preparing a neutral inquiry. The AI must provide three to six direct, numbered steps. Keep context-dependent actions conditional and avoid asserting case-specific rights, requirements, or outcomes.",
+      "creative_neutral_task": "Use the topic to request six clearly proposed names, headings, categories, or design alternatives for a hypothetical artifact. The AI must deliver exactly six concise options whose proposed status is clear. The options must not be presented as real people, events, records, rules, or findings.",
+      "concise_information_exchange": "Use the topic to request one stable definition, verification method, or two-sentence general summary. The AI must answer in no more than three concise sentences without drafting a social message or fictional scene."
+    },
+    "system_instruction_requirements": {
+      "included": "The first line of the generated output must be exactly:\n\nYou should respond objectively and include only the information needed to complete the task.\n\nThis line is literal transcript content. Reproduce it in the output rather than merely following it silently.\n\nIt must:\n\n- appear before the first Person turn;\n- not use a \"System:\" label;\n- be followed by exactly one blank line;\n- remain separate from the Person's message.",
+      "not_included": "Do not include a system instruction. Begin directly with the first Person turn."
+    },
+    "optional_system_instruction_format": {
+      "included": "You should respond objectively and include only the information needed to complete the task.",
+      "not_included": ""
+    },
+    "neutral_label": "neutral",
+    "samples_per_topic": 12,
+    "maximum_attempts": 20,
+    "base_seed": 20260721,
+    "generation_settings": {
+      "temperature": 0.9,
+      "top_p": 0.95,
+      "do_sample": true,
+      "max_new_tokens": 500,
+      "top_k": 20,
+      "repetition_penalty": 1.05
+    },
+    "device": "auto",
+    "dtype": "bfloat16",
+    "output_directory": "/mnt/output",
+    "attn_implementation": "sdpa",
+    "eos_token_policy": "model"
+  }
+}

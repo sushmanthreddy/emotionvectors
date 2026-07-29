@@ -1,0 +1,992 @@
+{
+  "schema_version": 1,
+  "release": "Qwen2.5-14B-Instruct",
+  "model": "Qwen/Qwen2.5-14B-Instruct",
+  "model_revision": "cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8",
+  "number_of_emotions": 45,
+  "number_of_layers": 48,
+  "hidden_size": 5120,
+  "emotion_order": [
+    "contemptuous",
+    "disdainful",
+    "scornful",
+    "hostile",
+    "angry",
+    "enraged",
+    "spiteful",
+    "vindictive",
+    "hateful",
+    "resentful",
+    "callous",
+    "sad",
+    "depressed",
+    "miserable",
+    "grief-stricken",
+    "heartbroken",
+    "anxious",
+    "afraid",
+    "gloomy",
+    "lonely",
+    "worthless",
+    "panicked",
+    "terrified",
+    "desperate",
+    "bored",
+    "listless",
+    "sluggish",
+    "indifferent",
+    "reflective",
+    "curious",
+    "irritated",
+    "annoyed",
+    "frustrated",
+    "on edge",
+    "tense",
+    "restless",
+    "happy",
+    "joyful",
+    "content",
+    "calm",
+    "serene",
+    "grateful",
+    "loving",
+    "compassionate",
+    "kind"
+  ],
+  "emotion_slugs": [
+    "contemptuous",
+    "disdainful",
+    "scornful",
+    "hostile",
+    "angry",
+    "enraged",
+    "spiteful",
+    "vindictive",
+    "hateful",
+    "resentful",
+    "callous",
+    "sad",
+    "depressed",
+    "miserable",
+    "grief_stricken",
+    "heartbroken",
+    "anxious",
+    "afraid",
+    "gloomy",
+    "lonely",
+    "worthless",
+    "panicked",
+    "terrified",
+    "desperate",
+    "bored",
+    "listless",
+    "sluggish",
+    "indifferent",
+    "reflective",
+    "curious",
+    "irritated",
+    "annoyed",
+    "frustrated",
+    "on_edge",
+    "tense",
+    "restless",
+    "happy",
+    "joyful",
+    "content",
+    "calm",
+    "serene",
+    "grateful",
+    "loving",
+    "compassionate",
+    "kind"
+  ],
+  "label_to_slug": {
+    "contemptuous": "contemptuous",
+    "disdainful": "disdainful",
+    "scornful": "scornful",
+    "hostile": "hostile",
+    "angry": "angry",
+    "enraged": "enraged",
+    "spiteful": "spiteful",
+    "vindictive": "vindictive",
+    "hateful": "hateful",
+    "resentful": "resentful",
+    "callous": "callous",
+    "sad": "sad",
+    "depressed": "depressed",
+    "miserable": "miserable",
+    "grief-stricken": "grief_stricken",
+    "heartbroken": "heartbroken",
+    "anxious": "anxious",
+    "afraid": "afraid",
+    "gloomy": "gloomy",
+    "lonely": "lonely",
+    "worthless": "worthless",
+    "panicked": "panicked",
+    "terrified": "terrified",
+    "desperate": "desperate",
+    "bored": "bored",
+    "listless": "listless",
+    "sluggish": "sluggish",
+    "indifferent": "indifferent",
+    "reflective": "reflective",
+    "curious": "curious",
+    "irritated": "irritated",
+    "annoyed": "annoyed",
+    "frustrated": "frustrated",
+    "on edge": "on_edge",
+    "tense": "tense",
+    "restless": "restless",
+    "happy": "happy",
+    "joyful": "joyful",
+    "content": "content",
+    "calm": "calm",
+    "serene": "serene",
+    "grateful": "grateful",
+    "loving": "loving",
+    "compassionate": "compassionate",
+    "kind": "kind"
+  },
+  "datasets": {
+    "topics": 100,
+    "samples_per_topic_emotion": 12,
+    "accepted_emotional_stories": 54000,
+    "stories_per_emotion": 1200,
+    "accepted_neutral_transcripts": 1200,
+    "failed_emotional_stories": 0,
+    "failed_neutral_transcripts": 0
+  },
+  "lineage": {
+    "emotional_story_generation": "20260725-103950-d9fb0daf",
+    "neutral_dialogue_generation": "20260725-114447-2feeaae8",
+    "emotional_activation_and_raw_vectors": "20260726-103023-afd9dfe7",
+    "neutral_activation_and_pca": "20260726-130437-1e425251",
+    "angry_joyful_probe": "20260729-111847-3e2bcd29"
+  },
+  "method": {
+    "hidden_state_mapping": "saved layer l equals outputs.hidden_states[l + 1]",
+    "embedding_hidden_state_included": false,
+    "emotional_token_aggregation": "mean from one-based token position 50 through the final valid non-padding token independently at every layer",
+    "raw_vector": "target-emotion story mean minus the story-weighted mean of all different-emotion stories at the same layer",
+    "neutral_token_aggregation": "mean across all valid non-padding transcript tokens",
+    "neutral_pca": "48 independent centered exact economy SVD calculations",
+    "neutral_variance_threshold": 0.5,
+    "neutral_pca_component_counts": [
+      19,
+      12,
+      5,
+      5,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      3,
+      4,
+      6,
+      3
+    ],
+    "neutral_pca_achieved_cumulative_variance": [
+      0.5013861556796733,
+      0.5100535018874803,
+      0.5036304341593925,
+      0.5059537781152071,
+      0.9944793431346189,
+      0.9934660762052241,
+      0.9918078772529986,
+      0.9895329013090346,
+      0.9884747363359679,
+      0.9850341174427638,
+      0.9819075166818008,
+      0.980098075740946,
+      0.9775757516350558,
+      0.9741043050135899,
+      0.9710622612222576,
+      0.9655983337822844,
+      0.9615548960959007,
+      0.9598984874723646,
+      0.9573534497427427,
+      0.9555605093278263,
+      0.9564089358647595,
+      0.9542204414752821,
+      0.9522932450280326,
+      0.9476560143159647,
+      0.9428137493941071,
+      0.9409633309134791,
+      0.9394460235178241,
+      0.9348126642750285,
+      0.927465662953772,
+      0.918622514940774,
+      0.9060625350989896,
+      0.8765008437759448,
+      0.8623952044992095,
+      0.8298311228945736,
+      0.7919748785376733,
+      0.7567545139656586,
+      0.7231563825944575,
+      0.6914578095234509,
+      0.6565935046353213,
+      0.62697514047203,
+      0.5919867516474975,
+      0.5755250841659093,
+      0.5472920024628167,
+      0.5171982280899783,
+      0.5165139294864178,
+      0.506324225994125,
+      0.5034384834639671,
+      0.5341171166596173
+    ],
+    "clean_vector": "raw vector minus its orthogonal projection onto retained neutral PCA components from the matching layer",
+    "normalisation": "independent L2 normalisation at every layer after cleaning",
+    "layers_averaged_together": false
+  },
+  "tensor_schemas": {
+    "emotion_vectors_raw.pt": "dict[45 labels] -> float32 [48, 5120]",
+    "emotion_vectors_clean.pt": "dict[45 labels] -> float32 [48, 5120]",
+    "emotion_vectors_clean_unit.pt": "dict[45 labels] -> float32 [48, 5120]",
+    "neutral_layer_means.pt": "float32 [48, 5120]",
+    "neutral_pca_components.pt": "dict[layer 0..47] with retained float32 [K_l, 5120] bases"
+  },
+  "intentionally_excluded": [
+    "rejected generation attempts",
+    "model and tokenizer caches",
+    "copied Python dependencies",
+    "emotional activation shards and consolidated activations",
+    "neutral activation shards and consolidated activations",
+    "run logs, progress files, pilot runs, and recovery snapshots",
+    "duplicate stacked tensors, float64 sums, and raw-vector backups"
+  ],
+  "files": [
+    {
+      "path": "README.md",
+      "role": "shared_configuration_or_documentation",
+      "size_bytes": 6232,
+      "sha256": "08e804990d50473a76843da57e4f10eeecddac2722c9a824b289419bb6a2b673"
+    },
+    {
+      "path": "artifacts/Qwen2.5-14B-Instruct/cleaning_config.json",
+      "role": "mathematical_artifact_or_provenance",
+      "size_bytes": 5027,
+      "sha256": "da8c746e6ce5885f5cfe0d3e0c5dd8d7ef3b94154469b266d31ea569876f7202"
+    },
+    {
+      "path": "artifacts/Qwen2.5-14B-Instruct/cleaning_metadata.json",
+      "role": "mathematical_artifact_or_provenance",
+      "size_bytes": 13095,
+      "sha256": "a3ca586dcbe4b1ecfd88bef5f587874b74f77a046d2e53190cb4893f1010369a"
+    },
+    {
+      "path": "artifacts/Qwen2.5-14B-Instruct/emotion_counts.json",
+      "role": "mathematical_artifact_or_provenance",
+      "size_bytes": 893,
+      "sha256": "a12f326bfce19cdec7bdd90c1e247b634cdc567523db02e0651bc8fc06452db0"
+    },
+    {
+      "path": "artifacts/Qwen2.5-14B-Instruct/emotion_vector_cleaning_metrics.json",
+      "role": "mathematical_artifact_or_provenance",
+      "size_bytes": 1631632,
+      "sha256": "343d7d4734a7d3d493b2f3ca0ff1516b388b8a78e2d47bda9c17bb8f95b403f1"
+    },
+    {
+      "path": "artifacts/Qwen2.5-14B-Instruct/emotion_vector_norms.json",
+      "role": "mathematical_artifact_or_provenance",
+      "size_bytes": 64175,
+      "sha256": "6589c8c09c93c9b0892607503cc7451f495d8767177242aba105b101d24e6c0a"
+    },
+    {
+      "path": "artifacts/Qwen2.5-14B-Instruct/emotion_vectors_clean.pt",
+      "role": "mathematical_artifact_or_provenance",
+      "size_bytes": 44251258,
+      "sha256": "22ed6f9e54cfc973d344f361187a1cb764854968b835bfaf6ad81f8be2d6ef5a"
+    },
+    {
+      "path": "artifacts/Qwen2.5-14B-Instruct/emotion_vectors_clean_norms.json",
+      "role": "mathematical_artifact_or_provenance",
+      "size_bytes": 64224,
+      "sha256": "2216ccaa985a435910119345d9defff8304f71c454032afaddfee7921550b308"
+    },
+    {
+      "path": "artifacts/Qwen2.5-14B-Instruct/emotion_vectors_clean_unit.pt",
+      "role": "mathematical_artifact_or_provenance",
+      "size_bytes": 44251567,
+      "sha256": "9a041b09fa6d98602d11cb8c26b39fa13a495f9a00f59bcb90e7682d8bc21f2c"
+    },
+    {
+      "path": "artifacts/Qwen2.5-14B-Instruct/emotion_vectors_raw.pt",
+      "role": "mathematical_artifact_or_provenance",
+      "size_bytes": 44251160,
+      "sha256": "65437f7e0b07a3fd6e41f852f035b68a701342545a7abccbfe71e23a7231656d"
+    },
+    {
+      "path": "artifacts/Qwen2.5-14B-Instruct/neutral_layer_means.pt",
+      "role": "mathematical_artifact_or_provenance",
+      "size_bytes": 984409,
+      "sha256": "8e2e7ed46abe840b077fe8e4497166f07033db6cbccd58450e91d83162f80554"
+    },
+    {
+      "path": "artifacts/Qwen2.5-14B-Instruct/neutral_pca_components.pt",
+      "role": "mathematical_artifact_or_provenance",
+      "size_bytes": 4427970,
+      "sha256": "b98f77a68ed90e205e513e4127ce7c9567666770b01c0d61688778f0ca2df93c"
+    },
+    {
+      "path": "artifacts/Qwen2.5-14B-Instruct/neutral_pca_config.json",
+      "role": "mathematical_artifact_or_provenance",
+      "size_bytes": 3168,
+      "sha256": "b408695b88b7e5529532d6ee82afd5ec0260b6348cf3d396d17fa0af50eb0576"
+    },
+    {
+      "path": "artifacts/Qwen2.5-14B-Instruct/neutral_pca_metadata.json",
+      "role": "mathematical_artifact_or_provenance",
+      "size_bytes": 6959,
+      "sha256": "8f53a368c9536f3ca4b24f4733b89d2fa3cc9e2b5e41f7cbd64072488a79d897"
+    },
+    {
+      "path": "artifacts/Qwen2.5-14B-Instruct/neutral_pca_summary.json",
+      "role": "mathematical_artifact_or_provenance",
+      "size_bytes": 15272,
+      "sha256": "6136ad926cad9f64e86f27910dc2ce2fa21c587abcd7e075903f964485d6ca5a"
+    },
+    {
+      "path": "artifacts/Qwen2.5-14B-Instruct/raw_activation_metadata.json",
+      "role": "mathematical_artifact_or_provenance",
+      "size_bytes": 7275,
+      "sha256": "8e22ac3eb7d04e9c012aea36c4268cdee77912e38bb87cb4e4f267126b145348"
+    },
+    {
+      "path": "artifacts/Qwen2.5-14B-Instruct/vector_computation_metadata.json",
+      "role": "mathematical_artifact_or_provenance",
+      "size_bytes": 8460,
+      "sha256": "0b8e16cef819764bdfde231c948238a26a66c069085b815aab3c1c7c5742a7d4"
+    },
+    {
+      "path": "config/story_emotions.json",
+      "role": "shared_configuration_or_documentation",
+      "size_bytes": 756,
+      "sha256": "245d920b2d910728c841ca23072cd07ffa53e15b4a36f3630a9a0d94bf20fccb"
+    },
+    {
+      "path": "config/topics.json",
+      "role": "shared_configuration_or_documentation",
+      "size_bytes": 10126,
+      "sha256": "47fa2214e5771ea3c134006b014c5099a306bedb2efe40ae57338621781c1b97"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/config.json",
+      "role": "shared_configuration_or_documentation",
+      "size_bytes": 15379,
+      "sha256": "464722971b51ff949aa6c7ec383776c6ada9bb34ef468025679521b3f3c0afa3"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/manifest.json",
+      "role": "shared_configuration_or_documentation",
+      "size_bytes": 835,
+      "sha256": "154a1cf9a88cc444b303e46105d92151d7d80f6f681ada6f1f0c94c9b39e70a8"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/afraid.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5805529,
+      "sha256": "d4a2548debb3713e54498a4ad83bd7252852a1f2b442ee803848df4ff10639ec"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/angry.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5779973,
+      "sha256": "6dd02d1c9f00f9d422cc58f1f56bb8843b1532a5ade5fdcae669b0c7901c3dbf"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/annoyed.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5873549,
+      "sha256": "acc29fa8e5d3709d427f82b8a002942ed28d7c075b7c14f633e475df6c8999c2"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/anxious.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5887782,
+      "sha256": "94518733edd782cf43f343e6fd5dc1e94e49ae6bbd8128ae03562a36222e2653"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/bored.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5863741,
+      "sha256": "26e044ad07e79f8f1db2fb6b5add4d3fe80832403d3b48528fcc76b1ed7881dc"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/callous.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5912049,
+      "sha256": "b61410bc9383091b26887ae7b8f9ec9a093bef14901b5f1431865a3c8b7e065d"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/calm.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5807761,
+      "sha256": "c9e052414be4d25d6b9270beced02430845b37ea5f28651b8a4a7b646b653356"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/compassionate.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5795042,
+      "sha256": "26484df93817d6312813a1d90f9ed3be09a6545c76d869f927d1eb8a02a81ebb"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/contemptuous.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5893226,
+      "sha256": "acb7cb8bab9c00f8228d4d44eba3dfeba315898293f8cf680c1086453c0d210f"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/content.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5749957,
+      "sha256": "9de2ba2421fc05c5689c633157a48415c4f18749129b5e038bf6c243d00b3675"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/curious.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5763386,
+      "sha256": "6a25d578385c71f3d3fdcf7bdd1d994ba8589fffed88c14b30a65eed7581b61a"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/depressed.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5828026,
+      "sha256": "816009886e186e3d4eaa65dfe7db8e207e3ffd6426887a039472ab879ff5ad9b"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/desperate.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5876060,
+      "sha256": "c7691d14684f92114815757b60eafaea6f4a8e16dae8b1e1103072aa1c836f49"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/disdainful.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5926709,
+      "sha256": "d71552b99488d283fa0ba48fcc1b3c9c94eb5c55b390cbd5b6d8e8ed94c5f6ae"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/enraged.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5817934,
+      "sha256": "9bd312f36c29b41c6b4b71cf224bc3f601aa06fae5ed57e7d9d79758ba632104"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/frustrated.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5893459,
+      "sha256": "9851902f01513fb74e5525f46cab783f791ed3c53938a548b360649ab1a107b7"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/gloomy.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5830742,
+      "sha256": "3acba069fff0422e18d268108daf3bb59359ee2f92509408a65a906ec4df1cfd"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/grateful.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5701104,
+      "sha256": "091c4ef25d86f1fe1e316d5a68b27a8a892637cee60896d232e493b99ba16cc8"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/grief_stricken.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5849093,
+      "sha256": "795de2b63c329eb7b0a319bce18e26f024764e2c605ea2f5ecef3d0ed39bd7e0"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/happy.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5663417,
+      "sha256": "3c20d520105b4092027f8739cab37abf58281925fd9a1eed779c2cf634a9e4f6"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/hateful.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5753377,
+      "sha256": "c6483dbb0193cef52a0d20c1d5fbaf0fa87b986747dfd9bd33c0eae36530a44c"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/heartbroken.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5801311,
+      "sha256": "55f45e6449bd9f0c3be2a3562353497601b414f8a6d0dfab82f9a4afad678943"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/hostile.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5808495,
+      "sha256": "a576ceea7a344efe13874b0c93fcbd8964c1caf315db2f1949af61d53699ef17"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/indifferent.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5896224,
+      "sha256": "413cf0246f9b0f5126ad5c2c073931ebd2b2e4e82fd6d6aab44e313849e0785c"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/irritated.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5933287,
+      "sha256": "b79a5accbc69b3158babaffb65cc0a8379047f940ab3e4f701560939f5d54ec7"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/joyful.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5767310,
+      "sha256": "eb3fca7f5ece68e1b9d67549c8e6609de56a80d88a6449f6a62c90eddeedf4d4"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/kind.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5751948,
+      "sha256": "75cd8fdbc2d70b709e4947a09c70a8b4227e84728d77688b02d80bdb71ba6f2b"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/listless.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5892776,
+      "sha256": "4512fbcb33b6a44e5443caa7c43d751dff0c8ef8ab035c472ee8fd4d3a12a59e"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/lonely.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5851670,
+      "sha256": "85d9a29ccc1c7c170cd98c5dd69263a8b12fb13502c12d35d6c45d1a1a90e3ca"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/loving.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5742515,
+      "sha256": "cd0801917cd34e3047afdbdb7f1c8d060f13331de7a0c07a625defbf8a68f522"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/miserable.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5830222,
+      "sha256": "965be3db0410698bcf164d181ddc98b61d6aa596480c60c98c03678110f47f78"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/on_edge.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5844187,
+      "sha256": "3bf6fd5aec0bb8db987815c29f02c78587f07a7c4c6ea218ef4b49a55aed6362"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/panicked.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5860980,
+      "sha256": "3192a110c184428fb5e133732198d97f664d5e8ef759bb4eb7b75134578f9f8c"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/reflective.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5824228,
+      "sha256": "c98326b54655866422ae948e7bc5500f9ed365efc06ba0cc4d529e348c89cc43"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/resentful.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5891920,
+      "sha256": "b66e037c1992e1fb920a61e51cf88c0034d5f4d1502997228ec155fd30743ba8"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/restless.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5936225,
+      "sha256": "3bd48a4726073489e0b7d1be33d0154fcbc2edbcd5e141311f8914ec172439e8"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/sad.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5706518,
+      "sha256": "a8e28961587bc8e604bead64544e536ce2c6bbe3b36600f3aa0cf08b15d7883c"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/scornful.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5877192,
+      "sha256": "a1eff2149da094f3703c4030130a7133517cb8e665ccbd398524045c9e3b6738"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/serene.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5787488,
+      "sha256": "a0dfd87eee2f85388dcff0f1fc0b4d2363d8f6e4787fb437b60d700ad22370f2"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/sluggish.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5896017,
+      "sha256": "96027c93186297da3c082126a0e7d88a178296f897b32e622f04addd4902a518"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/spiteful.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5834364,
+      "sha256": "f98c55da010d438a9847f650d90cd1668bcaa826a671bd55da3ff19019e75e46"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/tense.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5848702,
+      "sha256": "cb8d8d03a985e49ca1f40173c0bb95b1557d6ba8418e5f17eec5c6be25b7f19c"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/terrified.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5918611,
+      "sha256": "d5580a70f91345c69f90c1eb1a40f70cfccb047663b86e297d37366fd4819984"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/vindictive.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5890746,
+      "sha256": "d5d9e743cfcb6b2aef063f1ff7df3859afb16c89b735141a249860b168dbd75a"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/emotional_stories/records/worthless.jsonl",
+      "role": "accepted_emotional_stories",
+      "size_bytes": 5956221,
+      "sha256": "3c5169bf9a14ca4d69f422447d5d817a7feb292fe8cf67c3ff92d388f6d1d77c"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/neutral_dialogues/config.json",
+      "role": "accepted_neutral_dataset_and_provenance",
+      "size_bytes": 41779,
+      "sha256": "5baa86fd27358daa68de6ad31d766585570a20644eed43463b4064b9d8b5b429"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/neutral_dialogues/manifest.json",
+      "role": "accepted_neutral_dataset_and_provenance",
+      "size_bytes": 822,
+      "sha256": "bc42feb7ab21d6d3c57a246ccd128a4e9962171e25b40855936657e005901e92"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/neutral_dialogues/neutral_dialogues.jsonl",
+      "role": "accepted_neutral_dataset_and_provenance",
+      "size_bytes": 8750208,
+      "sha256": "78db85b0529842353fdf5c3a48cfe128d67fcb9739fef7582fb842926c5a1e07"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/probe_examples/angry_joyful.jsonl",
+      "role": "probe_input",
+      "size_bytes": 3146,
+      "sha256": "4049592fb9c492a94805bfacb75afcac0564f90d0b226126634b1522dc43211c"
+    },
+    {
+      "path": "data/Qwen2.5-14B-Instruct/probe_examples/metadata.json",
+      "role": "probe_input",
+      "size_bytes": 1042,
+      "sha256": "524b3e3b5e5d05f848b72e2f7c513b35d97973b2be8e712efcb37dc81ebdf1d8"
+    },
+    {
+      "path": "docs/Qwen2.5-14B-Instruct/README.md",
+      "role": "experiment_documentation",
+      "size_bytes": 14810,
+      "sha256": "8c90860f5a3644923ebdf728a6f75caaec4e67f31504a39489aed6039b6a48cf"
+    },
+    {
+      "path": "docs/expanded_story_generation.md",
+      "role": "shared_configuration_or_documentation",
+      "size_bytes": 3729,
+      "sha256": "6decee547c96ff6835166cf958a49322338234c985fd132f6d3425ef9d4797d0"
+    },
+    {
+      "path": "figures/Qwen2.5-14B-Instruct/anthropic_style_angry_joyful_layer_32.png",
+      "role": "probe_figure",
+      "size_bytes": 187860,
+      "sha256": "0c6961cde51cdaba46092a967972a6aeb4c56f04be9cac5bdda8609457ca5322"
+    },
+    {
+      "path": "k8s/Qwen2.5-14B-Instruct/emotional_stories.template.yaml",
+      "role": "render_only_gpu_template",
+      "size_bytes": 19981,
+      "sha256": "cdbcc7fe334829711ab66b613da8565fcfd9435333234c7e769f92ba33dc65bf"
+    },
+    {
+      "path": "k8s/Qwen2.5-14B-Instruct/neutral_dialogues.template.yaml",
+      "role": "render_only_gpu_template",
+      "size_bytes": 21361,
+      "sha256": "7107cdbcf4c5fc222b22e962b0c381acf32cf4581d12555fbfeb4418a10089a2"
+    },
+    {
+      "path": "k8s/Qwen2.5-14B-Instruct/story_activations.template.yaml",
+      "role": "render_only_gpu_template",
+      "size_bytes": 22221,
+      "sha256": "61cf6f61701c9b0e5ba4760d61764b9840eb74f093ca9c836ff4871755eabfff"
+    },
+    {
+      "path": "pyproject.toml",
+      "role": "shared_configuration_or_documentation",
+      "size_bytes": 1318,
+      "sha256": "e8dd998b539a1e7750928fe349fe92e7d025034099142ccb9250410e1d5d3c43"
+    },
+    {
+      "path": "results/Qwen2.5-14B-Instruct/angry_joyful_layer_32/completion.json",
+      "role": "probe_result",
+      "size_bytes": 2956,
+      "sha256": "5a75dd8cb6cd28ca08887d8285f716998b13e5d77b5001b10d9ffd277b949540"
+    },
+    {
+      "path": "results/Qwen2.5-14B-Instruct/angry_joyful_layer_32/figure_metadata.json",
+      "role": "probe_result",
+      "size_bytes": 1896,
+      "sha256": "2e10559f84c594011a7c2c9a185a6217db2c67f06927c77eef5232f3b1ab36e3"
+    },
+    {
+      "path": "results/Qwen2.5-14B-Instruct/angry_joyful_layer_32/scoring_metadata.json",
+      "role": "probe_result",
+      "size_bytes": 3136,
+      "sha256": "169d10be822dd650cb00d37c7b6c1cb21e55cc27baa0d7783992486943bf58bc"
+    },
+    {
+      "path": "results/Qwen2.5-14B-Instruct/angry_joyful_layer_32/token_scores.jsonl",
+      "role": "probe_result",
+      "size_bytes": 22668,
+      "sha256": "debbc5693a787ba6e8bb4035aa83f3489650e0f8f86fbb8e64098fc15ace2c6b"
+    },
+    {
+      "path": "scripts/.ipynb_checkpoints/generate_emotional_stories-checkpoint.py",
+      "role": "reproduction_code",
+      "size_bytes": 210,
+      "sha256": "4e661c952b73f5f0948e5aaf3ccd44c181aec16488e9dc2b01e0e587720733b7"
+    },
+    {
+      "path": "scripts/.ipynb_checkpoints/generate_neutral_dialogues-checkpoint.py",
+      "role": "reproduction_code",
+      "size_bytes": 211,
+      "sha256": "94f9dc553592023aceeb37cbf22872e38255a1e8aac50bf66e10b38faa651813"
+    },
+    {
+      "path": "scripts/build_qwen25_14b_release_manifest.py",
+      "role": "reproduction_code",
+      "size_bytes": 9555,
+      "sha256": "935c98000c34c4a662e169be097e6e6f10e08ef9478ecb23cc25e140d4a3a60b"
+    },
+    {
+      "path": "scripts/clean_vectors_with_neutral_pca.py",
+      "role": "reproduction_code",
+      "size_bytes": 219,
+      "sha256": "86ecf8d9f4ac86cb284d09d3ff892cb7f1e8af7f881a6b20e4a61daf469fb7c3"
+    },
+    {
+      "path": "scripts/extract_neutral_pca.py",
+      "role": "reproduction_code",
+      "size_bytes": 213,
+      "sha256": "8987f29fed31e9356f843e07d9bf65f1cd4a1a33cc5d6d769251d825ecf88e10"
+    },
+    {
+      "path": "scripts/extract_raw_emotion_vectors.py",
+      "role": "reproduction_code",
+      "size_bytes": 210,
+      "sha256": "b29c0f3206fce96ebdeddbdbc29fd46d8792bf9da5dc2dd4904f6c7140a07c27"
+    },
+    {
+      "path": "scripts/generate_emotional_stories.py",
+      "role": "reproduction_code",
+      "size_bytes": 210,
+      "sha256": "4e661c952b73f5f0948e5aaf3ccd44c181aec16488e9dc2b01e0e587720733b7"
+    },
+    {
+      "path": "scripts/generate_neutral_dialogues.py",
+      "role": "reproduction_code",
+      "size_bytes": 211,
+      "sha256": "94f9dc553592023aceeb37cbf22872e38255a1e8aac50bf66e10b38faa651813"
+    },
+    {
+      "path": "scripts/plot_anthropic_style_paragraphs.py",
+      "role": "reproduction_code",
+      "size_bytes": 217,
+      "sha256": "ceb6317b7bb636f1ee15fc4e2453f4a531e3a12f11e9e13088385b8f014d7637"
+    },
+    {
+      "path": "scripts/plot_emotion_subset.py",
+      "role": "reproduction_code",
+      "size_bytes": 211,
+      "sha256": "37575c19999297cf62a7d2c2146525b6669be032cf97590900bce9c3f4e32d04"
+    },
+    {
+      "path": "scripts/score_emotion_subset.py",
+      "role": "reproduction_code",
+      "size_bytes": 212,
+      "sha256": "5f147a671aea8d7f8ee9c12424afa6e5f698b766772c32ce689f54f01c097ac7"
+    },
+    {
+      "path": "scripts/score_mixed_emotion_paragraphs.py",
+      "role": "reproduction_code",
+      "size_bytes": 212,
+      "sha256": "6150e1f76a2951d0a57159f525bd5b2124c88796b6cf841b17dc9fffa2ab46b9"
+    },
+    {
+      "path": "src/emotionvectors/__init__.py",
+      "role": "reproduction_code",
+      "size_bytes": 391,
+      "sha256": "ae3fb2fcc19757996ecf42a83e3e5db1e4fb9cb4ba189be087f2f7ad8ae961f7"
+    },
+    {
+      "path": "src/emotionvectors/constants.py",
+      "role": "reproduction_code",
+      "size_bytes": 1327,
+      "sha256": "5e80759e6411a1cdbffb940ab9d3d4bccce3c73fe5f8f233c1deed5754e45d18"
+    },
+    {
+      "path": "src/emotionvectors/extraction/__init__.py",
+      "role": "reproduction_code",
+      "size_bytes": 70,
+      "sha256": "c0bdf8ebe4ea915a3103df70ba884be4c92778bc56f635b232faf89e113457e0"
+    },
+    {
+      "path": "src/emotionvectors/extraction/clean_vectors.py",
+      "role": "reproduction_code",
+      "size_bytes": 52721,
+      "sha256": "bd25c2fccf9963e6abdb7b86597ff7bf02ebea18821e297688b566f2577fabd1"
+    },
+    {
+      "path": "src/emotionvectors/extraction/neutral_pca.py",
+      "role": "reproduction_code",
+      "size_bytes": 81729,
+      "sha256": "157fa694fafff89beb67cff04e72a021d44bdc302cb3f236b591d995b660aa0a"
+    },
+    {
+      "path": "src/emotionvectors/extraction/raw_vectors.py",
+      "role": "reproduction_code",
+      "size_bytes": 374,
+      "sha256": "69af271f45190ba89d5e755272ecb4ec6bbdd484a45766747a5ed83e1ddd65d0"
+    },
+    {
+      "path": "src/emotionvectors/extraction/story_raw_vectors.py",
+      "role": "reproduction_code",
+      "size_bytes": 155824,
+      "sha256": "c2ec93a089529b5d7077de138a38ae636972e354eccfa1f96a285673570f6305"
+    },
+    {
+      "path": "src/emotionvectors/generation/__init__.py",
+      "role": "reproduction_code",
+      "size_bytes": 65,
+      "sha256": "a5325a9af9743e0f0f401a82f278b5cfb6024fedcecde05626ac16e79ab11cb3"
+    },
+    {
+      "path": "src/emotionvectors/generation/emotion_config.py",
+      "role": "reproduction_code",
+      "size_bytes": 4553,
+      "sha256": "3011d5651236bb571b14733747331c477aba0179a1217985a12dd1522432970e"
+    },
+    {
+      "path": "src/emotionvectors/generation/emotional_stories.py",
+      "role": "reproduction_code",
+      "size_bytes": 66191,
+      "sha256": "54f248aed9c48825f3c67976c7c4bf912281d028f479fc7928c034b7e3eca786"
+    },
+    {
+      "path": "src/emotionvectors/generation/model.py",
+      "role": "reproduction_code",
+      "size_bytes": 17012,
+      "sha256": "600a8e50eed9df321be8309929936b026b3b747cc4e95feff7011e5b98ed751a"
+    },
+    {
+      "path": "src/emotionvectors/generation/neutral_dialogues.py",
+      "role": "reproduction_code",
+      "size_bytes": 73247,
+      "sha256": "3033483830b2ebea75194fe62da32afa83c04d61bce782ced01f7a4e0178e73e"
+    },
+    {
+      "path": "src/emotionvectors/generation/neutral_prompt.py",
+      "role": "reproduction_code",
+      "size_bytes": 10097,
+      "sha256": "fa4c53c7b48cc4311e7af67da00599a9a2f130203b99b43e45dec45addb991e5"
+    },
+    {
+      "path": "src/emotionvectors/generation/seeds.py",
+      "role": "reproduction_code",
+      "size_bytes": 908,
+      "sha256": "40cd8d9869b211d1eb0a319c5456ea562a0211fdbae161f351677c63d20a9bde"
+    },
+    {
+      "path": "src/emotionvectors/generation/storage.py",
+      "role": "reproduction_code",
+      "size_bytes": 13172,
+      "sha256": "57c3684644341a991c54b6b219cc31c74001e6fc1e757a36fd54a2b430f140d1"
+    },
+    {
+      "path": "src/emotionvectors/generation/story_prompt.py",
+      "role": "reproduction_code",
+      "size_bytes": 1768,
+      "sha256": "202abb4b975aed1408e2db271171e8af024965c079246c8c126520cb758b2a49"
+    },
+    {
+      "path": "src/emotionvectors/vectors.py",
+      "role": "reproduction_code",
+      "size_bytes": 6258,
+      "sha256": "3b4887f02a9bc3cf334f4344efc52b40703c924d3e726cb0265eb17151cdc0be"
+    },
+    {
+      "path": "src/emotionvectors/visualization/__init__.py",
+      "role": "reproduction_code",
+      "size_bytes": 659,
+      "sha256": "0fe2ca456ceced05d0900b83d2b1e879b2fa72ab20efcc6656f22ab2e91b9259"
+    },
+    {
+      "path": "src/emotionvectors/visualization/anthropic_style.py",
+      "role": "reproduction_code",
+      "size_bytes": 25533,
+      "sha256": "15ef11bf17fa22795ab6a51b8e5754252f19a5ca9cd9e9f492bca5c4972b8116"
+    },
+    {
+      "path": "src/emotionvectors/visualization/score_tokens.py",
+      "role": "reproduction_code",
+      "size_bytes": 22624,
+      "sha256": "c1698bee3d34959f428f276039485a7e31319916dd524fdf42ea9b1b6aa4d2bd"
+    },
+    {
+      "path": "src/emotionvectors/visualization/subset_plot.py",
+      "role": "reproduction_code",
+      "size_bytes": 21513,
+      "sha256": "13705a4c3c8e8771f0bc2535190006db50255a91be3d1326569f119bdecbe000"
+    },
+    {
+      "path": "src/emotionvectors/visualization/subset_score.py",
+      "role": "reproduction_code",
+      "size_bytes": 29646,
+      "sha256": "ba1042734ae3ffa0c8ddbd764261662c564661fbe2cbea485b498b400c4ca179"
+    }
+  ]
+}

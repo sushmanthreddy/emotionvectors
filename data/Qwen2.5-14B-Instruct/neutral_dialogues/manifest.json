@@ -1,0 +1,28 @@
+{
+  "generator_model": "Qwen/Qwen2.5-14B-Instruct",
+  "model_revision": "cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8",
+  "prompt_version": "anthropic_neutral_dialogue_single_v8",
+  "label": "neutral",
+  "base_seed": 20260721,
+  "number_of_topics": 100,
+  "samples_per_topic": 12,
+  "max_attempts": 20,
+  "intended_dialogues": 1200,
+  "accepted_dialogues": 1200,
+  "accepted_after_max_attempts": 0,
+  "failed_dialogues": 0,
+  "total_generation_attempts": 1242,
+  "generation_parameters": {
+    "temperature": 0.9,
+    "top_p": 0.95,
+    "do_sample": true,
+    "max_new_tokens": 500,
+    "top_k": 20,
+    "repetition_penalty": 1.05
+  },
+  "status": "completed",
+  "created_at": "2026-07-25T19:59:58.659148+00:00",
+  "updated_at": "2026-07-25T20:27:15.826419+00:00",
+  "execution_batch_size": 64,
+  "effective_batch_size": 64
+}
