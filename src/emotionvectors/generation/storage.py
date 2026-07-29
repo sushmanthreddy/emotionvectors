@@ -10,7 +10,18 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from .emotion_config import emotion_slug
+
 RecordKey = tuple[str, int, int]
+NON_IDENTITY_CONFIG_FIELDS = frozenset(
+    {
+        "created_at",
+        "device",
+        "emotion_config_source",
+        "output_path",
+        "topics_source",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -55,22 +66,39 @@ class DatasetStorage:
 
         self.output_dir.mkdir(parents=True, exist_ok=True)
         if self.config_path.exists():
-            existing = _read_json_object(self.config_path)
-            expected_comparable = {
-                key: value for key, value in run_config.items() if key != "created_at"
-            }
-            existing_comparable = {
-                key: value for key, value in existing.items() if key != "created_at"
-            }
-            if existing_comparable != expected_comparable:
-                raise ValueError(
-                    "The requested run configuration does not match the existing "
-                    f"configuration in {self.config_path}"
-                )
-            return existing
+            return self.validate_run_config(run_config)
+        existing_entries = [path for path in self.output_dir.iterdir()]
+        if existing_entries:
+            raise ValueError(
+                f"Refusing to adopt non-empty output directory without {self.config_path}: "
+                f"{self.output_dir}"
+            )
 
         atomic_write_json(self.config_path, run_config)
         return run_config
+
+    def validate_run_config(self, run_config: dict[str, Any]) -> dict[str, Any]:
+        """Read and compare an existing config without modifying the output tree."""
+
+        if not self.config_path.exists():
+            raise ValueError(f"Run configuration does not exist: {self.config_path}")
+        existing = _read_json_object(self.config_path)
+        expected_comparable = {
+            key: value
+            for key, value in run_config.items()
+            if key not in NON_IDENTITY_CONFIG_FIELDS
+        }
+        existing_comparable = {
+            key: value
+            for key, value in existing.items()
+            if key not in NON_IDENTITY_CONFIG_FIELDS
+        }
+        if existing_comparable != expected_comparable:
+            raise ValueError(
+                "The requested run configuration does not match the existing "
+                f"configuration in {self.config_path}"
+            )
+        return existing
 
     def initialize_layout(self, emotions: tuple[str, ...]) -> None:
         """Create every required append target without generating any records."""
@@ -79,9 +107,9 @@ class DatasetStorage:
         self.attempts_path.touch(exist_ok=True)
         self.log_path.touch(exist_ok=True)
         for emotion in emotions:
-            (self.records_dir / f"{emotion}.jsonl").touch(exist_ok=True)
+            (self.records_dir / f"{emotion_slug(emotion)}.jsonl").touch(exist_ok=True)
 
-    def load_completed_index(self) -> CompletedIndex:
+    def load_completed_index(self, *, repair: bool = True) -> CompletedIndex:
         """Stream accepted files, retaining only stable completed identifiers."""
 
         completed: set[RecordKey] = set()
@@ -90,10 +118,11 @@ class DatasetStorage:
             return CompletedIndex(frozenset(), 0)
 
         for path in sorted(self.records_dir.glob("*.jsonl")):
-            repair_incomplete_jsonl_tail(path)
+            if repair:
+                repair_incomplete_jsonl_tail(path)
             for line_number, row in _iter_jsonl(path):
                 key = _record_key(row, path=path, line_number=line_number)
-                if key[0] != path.stem:
+                if emotion_slug(key[0]) != path.stem:
                     raise ValueError(
                         f"Emotion {key[0]!r} in {path}:{line_number} does not match "
                         f"the record filename {path.stem!r}"
@@ -109,6 +138,8 @@ class DatasetStorage:
     def load_attempt_progress(
         self,
         completed_keys: frozenset[RecordKey],
+        *,
+        repair: bool = True,
     ) -> tuple[dict[RecordKey, AttemptProgress], int]:
         """Load only the state needed to continue unfinished attempt sequences."""
 
@@ -117,12 +148,12 @@ class DatasetStorage:
         if not self.attempts_path.exists():
             return progress, total_attempts
 
-        repair_incomplete_jsonl_tail(self.attempts_path)
+        if repair:
+            repair_incomplete_jsonl_tail(self.attempts_path)
+        seen_attempts: set[tuple[RecordKey, int]] = set()
         for line_number, row in _iter_jsonl(self.attempts_path):
             total_attempts += 1
             key = _record_key(row, path=self.attempts_path, line_number=line_number)
-            if key in completed_keys:
-                continue
             try:
                 attempt_number = int(row["attempt_number"])
             except (KeyError, TypeError, ValueError) as error:
@@ -133,6 +164,15 @@ class DatasetStorage:
                 raise ValueError(
                     f"Attempt number must be positive in {self.attempts_path}:{line_number}"
                 )
+            attempt_key = (key, attempt_number)
+            if attempt_key in seen_attempts:
+                raise ValueError(
+                    f"Duplicate attempt {attempt_number} for record key {key!r} "
+                    f"in {self.attempts_path}:{line_number}"
+                )
+            seen_attempts.add(attempt_key)
+            if key in completed_keys:
+                continue
 
             state = progress.setdefault(key, AttemptProgress())
             state.max_attempt_number = max(state.max_attempt_number, attempt_number)
@@ -163,7 +203,23 @@ class DatasetStorage:
         append_jsonl(self.attempts_path, record)
 
     def append_accepted(self, emotion: str, record: dict[str, Any]) -> None:
-        append_jsonl(self.records_dir / f"{emotion}.jsonl", record)
+        append_jsonl(self.records_dir / f"{emotion_slug(emotion)}.jsonl", record)
+
+    def iter_accepted_records(self) -> Iterator[tuple[Path, int, dict[str, Any]]]:
+        """Stream all accepted rows with their source locations."""
+
+        if not self.records_dir.exists():
+            return
+        for path in sorted(self.records_dir.glob("*.jsonl")):
+            for line_number, row in _iter_jsonl(path):
+                yield path, line_number, row
+
+    def iter_attempt_records(self) -> Iterator[tuple[int, dict[str, Any]]]:
+        """Stream attempt rows without repairing or changing their file."""
+
+        if not self.attempts_path.exists():
+            return
+        yield from _iter_jsonl(self.attempts_path)
 
     def write_manifest(self, manifest: dict[str, Any]) -> None:
         atomic_write_json(self.manifest_path, manifest)
@@ -287,6 +343,7 @@ __all__ = [
     "AttemptProgress",
     "CompletedIndex",
     "DatasetStorage",
+    "NON_IDENTITY_CONFIG_FIELDS",
     "RecordKey",
     "append_jsonl",
     "atomic_write_json",

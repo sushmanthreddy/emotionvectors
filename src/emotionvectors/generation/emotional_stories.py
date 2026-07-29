@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import logging
 import math
 import random
+import re
 import sys
 from collections import deque
 from collections.abc import Sequence
@@ -16,6 +18,11 @@ from pathlib import Path
 from typing import Any
 
 from ..constants import MODEL_ID, MODEL_REVISION
+from .emotion_config import (
+    EmotionSpec,
+    build_emotion_specs,
+    load_emotion_config,
+)
 from .model import (
     GenerationParameters,
     LocalHuggingFaceGenerator,
@@ -27,7 +34,7 @@ from .story_prompt import PROMPT_VERSION, STORY_PROMPT_TEMPLATE, render_story_pr
 from .seeds import create_seed
 from .storage import AttemptProgress, DatasetStorage, RecordKey
 
-NEGATIVE_EMOTIONS = (
+ALL_EMOTIONS = (
     "anger",
     "fear",
     "disgust",
@@ -36,16 +43,62 @@ NEGATIVE_EMOTIONS = (
     "desperation",
     "frustration",
     "hostility",
+    "calmness",
+    "compassion",
+    "joy",
+    "trust",
 )
-POSITIVE_EMOTIONS = ("calmness", "compassion", "joy", "trust")
-ALL_EMOTIONS = NEGATIVE_EMOTIONS + POSITIVE_EMOTIONS
-EMOTION_GROUP = {
-    **{emotion: "negative" for emotion in NEGATIVE_EMOTIONS},
-    **{emotion: "positive" for emotion in POSITIVE_EMOTIONS},
-}
+DEFAULT_EMOTION_SPECS = tuple(
+    EmotionSpec(emotion=emotion) for emotion in ALL_EMOTIONS
+)
 DEFAULT_MODEL = MODEL_ID
 DEFAULT_TOPICS_PATH = Path("config/topics.json")
 MAX_TOTAL_ATTEMPTS = 5
+ATTEMPT_RECORD_FIELDS = frozenset(
+    {
+        "record_id",
+        "emotion",
+        "topic_id",
+        "topic",
+        "sample_index",
+        "attempt_number",
+        "seed",
+        "prompt_version",
+        "prompt",
+        "generator_model",
+        "model_revision",
+        "raw_completion",
+        "story",
+        "emotion_word_present",
+        "non_latin_letter_present",
+        "generation_error",
+        "generation_batch_size",
+        "created_at",
+    }
+)
+ACCEPTED_RECORD_FIELDS = frozenset(
+    {
+        "record_id",
+        "emotion",
+        "topic_id",
+        "topic",
+        "sample_index",
+        "prompt_version",
+        "prompt",
+        "raw_completion",
+        "story",
+        "generator_model",
+        "model_revision",
+        "generation_parameters",
+        "generation_batch_size",
+        "accepted_seed",
+        "attempt_count",
+        "emotion_word_present",
+        "non_latin_letter_present",
+        "accepted_after_max_attempts",
+        "created_at",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -57,6 +110,7 @@ class Topic:
 @dataclass(frozen=True)
 class GenerationJob:
     emotion: str
+    emotion_slug: str
     topic: Topic
     sample_index: int
 
@@ -67,7 +121,7 @@ class GenerationJob:
     @property
     def record_id(self) -> str:
         return (
-            f"{self.emotion}_topic_{self.topic.topic_id:03d}_"
+            f"{self.emotion_slug}_topic_{self.topic.topic_id:03d}_"
             f"sample_{self.sample_index:02d}"
         )
 
@@ -88,8 +142,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--model", default=DEFAULT_MODEL, help="Hugging Face model ID or path")
     parser.add_argument(
         "--model-revision",
-        default=MODEL_REVISION,
-        help="Pinned Hugging Face commit for the model and tokenizer",
+        default=None,
+        help=(
+            "Pinned Hugging Face commit for the model and tokenizer. "
+            "The released 7B model defaults to its pinned revision; other models "
+            "should pass an immutable revision explicitly."
+        ),
     )
     parser.add_argument(
         "--topics",
@@ -98,11 +156,30 @@ def build_parser() -> argparse.ArgumentParser:
         help="JSON file containing stable topic_id/topic objects",
     )
     parser.add_argument(
+        "--expected-topics-sha256",
+        default=None,
+        help="Optional lowercase SHA-256 guard for the exact topics file bytes",
+    )
+    emotion_source = parser.add_mutually_exclusive_group()
+    emotion_source.add_argument(
         "--emotions",
         nargs="+",
-        choices=ALL_EMOTIONS,
         default=None,
-        help="Subset of emotions to generate; defaults to all twelve",
+        help=(
+            "Exact ordered emotion labels for an ad-hoc run; defaults to the "
+            "released twelve-emotion set."
+        ),
+    )
+    emotion_source.add_argument(
+        "--emotion-config",
+        type=Path,
+        default=None,
+        help="Flat emotion JSON config; preserves emotion order",
+    )
+    parser.add_argument(
+        "--expected-emotion-config-sha256",
+        default=None,
+        help="Optional lowercase SHA-256 guard for the flat emotion config bytes",
     )
     parser.add_argument(
         "--max-topics",
@@ -121,6 +198,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--temperature", type=_positive_float, default=0.9)
     parser.add_argument("--top-p", type=_top_p, default=0.95)
     parser.add_argument(
+        "--top-k",
+        type=_nonnegative_int,
+        default=20,
+        help="Explicit sampling cutoff; zero disables top-k",
+    )
+    parser.add_argument(
+        "--repetition-penalty",
+        type=_positive_float,
+        default=1.05,
+        help="Explicit Transformers-compatible repetition penalty",
+    )
+    parser.add_argument(
         "--do-sample",
         action=argparse.BooleanOptionalAction,
         default=True,
@@ -137,23 +226,133 @@ def build_parser() -> argparse.ArgumentParser:
         "--output-dir", type=Path, default=Path("outputs/emotional_stories")
     )
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument(
+        "--attn-implementation",
+        default=None,
+        choices=("eager", "sdpa", "flash_attention_2"),
+        help="Optional Transformers attention backend",
+    )
+    parser.add_argument(
+        "--prompt-role",
+        default="system",
+        choices=("system", "user"),
+        help="Chat-template role that receives the story prompt",
+    )
+    parser.add_argument(
+        "--generation-request",
+        default="Generate the story now.",
+        help="Follow-up request used with chat templates",
+    )
+    parser.add_argument(
+        "--eos-token-policy",
+        choices=("model", "tokenizer"),
+        default="tokenizer",
+        help="Use the model generation-config stop IDs or tokenizer EOS only",
+    )
+    parser.add_argument(
+        "--chat-system-instruction",
+        default=None,
+        help="Optional system instruction when --prompt-role=user",
+    )
+    parser.add_argument(
+        "--trust-remote-code",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Allow model/tokenizer repositories to execute custom loading code",
+    )
+    parser.add_argument(
+        "--local-files-only",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Forbid network access while loading the model and tokenizer",
+    )
+    parser.add_argument(
+        "--require-model-revision",
+        action="store_true",
+        help="Fail preflight unless an immutable-looking 40-hex revision is supplied",
+    )
+    parser.add_argument(
+        "--expected-emotions",
+        type=_positive_int,
+        default=None,
+        help="Pre-model-load guard for the exact emotion count",
+    )
+    parser.add_argument(
+        "--expected-topics",
+        type=_positive_int,
+        default=None,
+        help="Pre-model-load guard for the exact topic count",
+    )
+    parser.add_argument(
+        "--expected-stories",
+        type=_positive_int,
+        default=None,
+        help="Pre-model-load guard for emotions × topics × samples",
+    )
+    run_mode = parser.add_mutually_exclusive_group()
+    run_mode.add_argument(
+        "--preflight-only",
+        action="store_true",
+        help="Validate and print the run plan without writing outputs or loading a model",
+    )
+    run_mode.add_argument(
+        "--validate-only",
+        action="store_true",
+        help="Require exact completed output coverage without loading a model",
+    )
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    if args.model != DEFAULT_MODEL:
-        parser.error(f"--model must be exactly {DEFAULT_MODEL}")
-    if args.model_revision != MODEL_REVISION:
-        parser.error(f"--model-revision must be exactly {MODEL_REVISION}")
+    if not args.generation_request.strip():
+        parser.error("--generation-request cannot be empty")
+    if (
+        args.chat_system_instruction is not None
+        and not args.chat_system_instruction.strip()
+    ):
+        parser.error("--chat-system-instruction cannot be empty when supplied")
+    model_revision = args.model_revision
+    if model_revision is None and args.model == DEFAULT_MODEL:
+        model_revision = MODEL_REVISION
+    if args.require_model_revision and not _is_immutable_revision(model_revision):
+        parser.error(
+            "--require-model-revision needs --model-revision to be a 40-character "
+            "hexadecimal commit"
+        )
 
-    emotions = tuple(args.emotions) if args.emotions is not None else ALL_EMOTIONS
-    if len(set(emotions)) != len(emotions):
-        parser.error("--emotions cannot contain duplicates")
+    try:
+        if args.emotion_config is not None:
+            emotions_path = args.emotion_config.expanduser().resolve()
+            emotion_config_sha256 = _sha256_file(emotions_path)
+            emotion_specs = load_emotion_config(emotions_path)
+        elif args.emotions is not None:
+            emotions_path = None
+            emotion_config_sha256 = None
+            emotion_specs = build_emotion_specs(args.emotions)
+        else:
+            emotions_path = None
+            emotion_config_sha256 = None
+            emotion_specs = DEFAULT_EMOTION_SPECS
+    except (OSError, ValueError, json.JSONDecodeError) as error:
+        parser.error(str(error))
+    emotions = tuple(spec.emotion for spec in emotion_specs)
+    if args.expected_emotion_config_sha256 is not None:
+        if emotion_config_sha256 is None:
+            parser.error(
+                "--expected-emotion-config-sha256 requires --emotion-config"
+            )
+        _validate_sha256_expectation(
+            parser=parser,
+            option="--expected-emotion-config-sha256",
+            expected=args.expected_emotion_config_sha256,
+            actual=emotion_config_sha256,
+        )
 
     try:
         topics_path = args.topics.expanduser().resolve()
+        topics_sha256 = _sha256_file(topics_path)
         topics = load_topics(topics_path)
     except (OSError, ValueError, json.JSONDecodeError) as error:
         parser.error(str(error))
@@ -161,20 +360,43 @@ def main(argv: Sequence[str] | None = None) -> int:
         topics = topics[: args.max_topics]
     if not topics:
         parser.error("At least one topic is required")
+    if args.expected_topics_sha256 is not None:
+        _validate_sha256_expectation(
+            parser=parser,
+            option="--expected-topics-sha256",
+            expected=args.expected_topics_sha256,
+            actual=topics_sha256,
+        )
+
+    intended_stories = len(emotions) * len(topics) * args.samples_per_pair
+    count_expectations = (
+        ("--expected-emotions", args.expected_emotions, len(emotions)),
+        ("--expected-topics", args.expected_topics, len(topics)),
+        ("--expected-stories", args.expected_stories, intended_stories),
+    )
+    for option, expected, actual in count_expectations:
+        if expected is not None and expected != actual:
+            parser.error(f"{option} expected {expected}, but the resolved run has {actual}")
 
     parameters = GenerationParameters(
         temperature=args.temperature,
         top_p=args.top_p,
+        top_k=args.top_k,
+        repetition_penalty=args.repetition_penalty,
         do_sample=args.do_sample,
         max_new_tokens=args.max_new_tokens,
     )
     output_dir = args.output_dir.expanduser().resolve()
     created_at = utc_now()
     run_config = _build_run_config(
-        emotions=emotions,
+        emotion_specs=emotion_specs,
+        emotion_config_path=emotions_path,
+        emotion_config_sha256=emotion_config_sha256,
         topics=topics,
         topics_path=topics_path,
+        topics_sha256=topics_sha256,
         model_name=args.model,
+        model_revision=model_revision,
         samples_per_pair=args.samples_per_pair,
         max_attempts=args.max_attempts,
         base_seed=args.base_seed,
@@ -183,52 +405,137 @@ def main(argv: Sequence[str] | None = None) -> int:
         dtype=args.dtype,
         output_dir=output_dir,
         created_at=created_at,
+        attn_implementation=args.attn_implementation,
+        prompt_role=args.prompt_role,
+        generation_request=args.generation_request,
+        chat_system_instruction=args.chat_system_instruction,
+        eos_token_policy=args.eos_token_policy,
+        trust_remote_code=args.trust_remote_code,
     )
-    run_config["model_revision"] = args.model_revision
+    jobs = _create_jobs(
+        emotion_specs=emotion_specs,
+        topics=topics,
+        samples_per_pair=args.samples_per_pair,
+        base_seed=args.base_seed,
+    )
+    intended_keys = {job.key for job in jobs}
+    if len(intended_keys) != intended_stories:
+        parser.error(
+            "Internal key collision while constructing the requested story dataset"
+        )
+
+    if args.preflight_only:
+        try:
+            output_state = _preflight_output_state(
+                output_dir=output_dir,
+                resume=args.resume,
+                run_config=run_config,
+            )
+        except (OSError, ValueError, json.JSONDecodeError) as error:
+            parser.error(str(error))
+        print(
+            json.dumps(
+                {
+                    "status": "preflight_passed",
+                    "generator_model": args.model,
+                    "model_revision": model_revision,
+                    "number_of_emotions": len(emotions),
+                    "number_of_topics": len(topics),
+                    "samples_per_pair": args.samples_per_pair,
+                    "intended_stories": intended_stories,
+                    "emotions": list(emotions),
+                    "output_dir": str(output_dir),
+                    "output_state": output_state,
+                    "model_loaded": False,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        return 0
 
     storage: DatasetStorage | None = None
-    try:
-        storage = DatasetStorage(output_dir, resume=args.resume)
-        persisted_config = storage.prepare_run_config(run_config)
-        storage.initialize_layout(ALL_EMOTIONS)
-        completed_index = storage.load_completed_index()
-        attempt_progress, total_attempts = storage.load_attempt_progress(
-            completed_index.keys
-        )
-    except KeyboardInterrupt:
-        interrupted_storage = storage or DatasetStorage(output_dir, resume=True)
-        _mark_startup_interrupted(
-            storage=interrupted_storage,
-            model_name=args.model,
-            base_seed=args.base_seed,
-            samples_per_pair=args.samples_per_pair,
-            max_attempts=args.max_attempts,
-            emotions=emotions,
-            topics=topics,
-            parameters=parameters,
-            created_at=created_at,
-        )
-        print("Generation interrupted during resume preparation", file=sys.stderr)
-        return 130
-    except (OSError, ValueError) as error:
-        parser.error(str(error))
+    if args.validate_only:
+        try:
+            storage = DatasetStorage(output_dir, resume=True)
+            persisted_config = storage.validate_run_config(run_config)
+            completed_index = storage.load_completed_index(repair=False)
+            attempt_progress, total_attempts = storage.load_attempt_progress(
+                completed_index.keys,
+                repair=False,
+            )
+        except (OSError, ValueError) as error:
+            parser.error(str(error))
+    else:
+        try:
+            storage = DatasetStorage(output_dir, resume=args.resume)
+            persisted_config = storage.prepare_run_config(run_config)
+            storage.initialize_layout(emotions)
+            completed_index = storage.load_completed_index()
+            attempt_progress, total_attempts = storage.load_attempt_progress(
+                completed_index.keys
+            )
+        except KeyboardInterrupt:
+            interrupted_storage = storage or DatasetStorage(output_dir, resume=True)
+            _mark_startup_interrupted(
+                storage=interrupted_storage,
+                model_name=args.model,
+                base_seed=args.base_seed,
+                samples_per_pair=args.samples_per_pair,
+                max_attempts=args.max_attempts,
+                emotions=emotions,
+                topics=topics,
+                parameters=parameters,
+                created_at=created_at,
+            )
+            print("Generation interrupted during resume preparation", file=sys.stderr)
+            return 130
+        except (OSError, ValueError) as error:
+            parser.error(str(error))
 
     try:
-        jobs = _create_jobs(
-            emotions=emotions,
-            topics=topics,
-            samples_per_pair=args.samples_per_pair,
-            base_seed=args.base_seed,
-        )
-        intended_keys = {job.key for job in jobs}
         unexpected_completed = completed_index.keys - intended_keys
         if unexpected_completed:
             parser.error(
                 "Existing accepted records do not belong to this run configuration: "
                 f"{sorted(unexpected_completed)[:3]!r}"
             )
+        unexpected_attempts = set(attempt_progress) - intended_keys
+        if unexpected_attempts:
+            parser.error(
+                "Existing attempt records do not belong to this run configuration: "
+                f"{sorted(unexpected_attempts)[:3]!r}"
+            )
+        accepted_records = _validate_accepted_records(
+            storage=storage,
+            jobs=jobs,
+            model_name=args.model,
+            model_revision=model_revision,
+            parameters=parameters,
+            base_seed=args.base_seed,
+            max_attempts=args.max_attempts,
+        )
+        _validate_attempt_records(
+            storage=storage,
+            jobs=jobs,
+            accepted_records=accepted_records,
+            model_name=args.model,
+            model_revision=model_revision,
+            base_seed=args.base_seed,
+            max_attempts=args.max_attempts,
+        )
 
         completed_keys = set(completed_index.keys)
+        effective_batch_size = args.batch_size
+        if args.resume and storage.manifest_path.exists():
+            previous_manifest = storage.read_manifest()
+            previous_effective = previous_manifest.get("effective_batch_size")
+            if (
+                isinstance(previous_effective, int)
+                and not isinstance(previous_effective, bool)
+                and previous_effective > 0
+            ):
+                effective_batch_size = min(effective_batch_size, previous_effective)
         failed_keys = {
             key
             for key, state in attempt_progress.items()
@@ -252,7 +559,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             created_at=str(persisted_config["created_at"]),
         )
         manifest["execution_batch_size"] = args.batch_size
-        manifest["model_revision"] = args.model_revision
+        manifest["effective_batch_size"] = effective_batch_size
+        manifest["model_revision"] = model_revision
     except KeyboardInterrupt:
         _mark_startup_interrupted(
             storage=storage,
@@ -267,6 +575,79 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         print("Generation interrupted during job preparation", file=sys.stderr)
         return 130
+    except (OSError, ValueError) as error:
+        parser.error(str(error))
+
+    if args.validate_only:
+        missing_keys = intended_keys - completed_keys
+        validation_errors: list[str] = []
+        if missing_keys:
+            validation_errors.append(f"{len(missing_keys)} accepted records are missing")
+        if failed_keys:
+            validation_errors.append(f"{len(failed_keys)} records are terminal failures")
+        try:
+            persisted_manifest = storage.read_manifest()
+        except (OSError, ValueError) as error:
+            validation_errors.append(str(error))
+            persisted_manifest = {}
+        if persisted_manifest.get("status") != "completed":
+            validation_errors.append(
+                "manifest status is not 'completed': "
+                f"{persisted_manifest.get('status')!r}"
+            )
+        expected_manifest_fields: dict[str, Any] = {
+            "generator_model": args.model,
+            "model_revision": model_revision,
+            "prompt_version": PROMPT_VERSION,
+            "base_seed": args.base_seed,
+            "samples_per_pair": args.samples_per_pair,
+            "max_attempts": args.max_attempts,
+            "number_of_emotions": len(emotions),
+            "number_of_topics": len(topics),
+            "intended_stories": intended_stories,
+            "accepted_stories": len(completed_keys),
+            "accepted_after_max_attempts": (
+                completed_index.accepted_after_max_attempts
+            ),
+            "failed_stories": len(failed_keys),
+            "total_generation_attempts": total_attempts,
+            "generation_parameters": parameters.as_dict(),
+        }
+        for field, expected in expected_manifest_fields.items():
+            if persisted_manifest.get(field) != expected:
+                validation_errors.append(
+                    f"manifest {field} is {persisted_manifest.get(field)!r}, "
+                    f"expected {expected!r}"
+                )
+        if validation_errors:
+            print(
+                json.dumps(
+                    {
+                        "status": "validation_failed",
+                        "errors": validation_errors,
+                        "accepted_stories": len(completed_keys),
+                        "intended_stories": intended_stories,
+                        "model_loaded": False,
+                    },
+                    indent=2,
+                ),
+                file=sys.stderr,
+            )
+            return 1
+        print(
+            json.dumps(
+                {
+                    "status": "validation_passed",
+                    "accepted_stories": len(completed_keys),
+                    "intended_stories": intended_stories,
+                    "failed_stories": 0,
+                    "model_loaded": False,
+                },
+                indent=2,
+            )
+        )
+        return 0
+
     try:
         storage.write_manifest(manifest)
         logger = configure_logging(storage.log_path)
@@ -295,7 +676,14 @@ def main(argv: Sequence[str] | None = None) -> int:
                 model_name=args.model,
                 device=args.device,
                 dtype=args.dtype,
-                model_revision=args.model_revision,
+                model_revision=model_revision,
+                attn_implementation=args.attn_implementation,
+                prompt_role=args.prompt_role,
+                generation_request=args.generation_request,
+                chat_system_instruction=args.chat_system_instruction,
+                trust_remote_code=args.trust_remote_code,
+                local_files_only=args.local_files_only,
+                use_model_eos_tokens=args.eos_token_policy == "model",
             )
         _run_jobs(
             jobs=jobs,
@@ -309,10 +697,17 @@ def main(argv: Sequence[str] | None = None) -> int:
             max_attempts=args.max_attempts,
             parameters=parameters,
             model_name=args.model,
-            model_revision=args.model_revision,
+            model_revision=model_revision,
             logger=logger,
-            batch_size=args.batch_size,
+            batch_size=effective_batch_size,
         )
+        terminal_keys = completed_keys | failed_keys
+        if terminal_keys != intended_keys:
+            missing_terminal = intended_keys - terminal_keys
+            raise RuntimeError(
+                "Generation returned with non-terminal jobs: "
+                f"count={len(missing_terminal)} sample={sorted(missing_terminal)[:3]!r}"
+            )
     except KeyboardInterrupt:
         _reconcile_manifest(storage, manifest, failed_keys, intended_keys)
         _update_manifest(storage, manifest, status="interrupted")
@@ -424,9 +819,11 @@ def _run_jobs(
         raise RuntimeError("Pending generation jobs have no loaded model")
 
     batch_number = 0
+    effective_batch_size = batch_size
+    manifest["effective_batch_size"] = effective_batch_size
     while pending:
         requests: list[AttemptRequest] = []
-        while pending and len(requests) < batch_size:
+        while pending and len(requests) < effective_batch_size:
             job = pending.popleft()
             state = attempt_progress.setdefault(job.key, AttemptProgress())
             attempt_number = state.max_attempt_number + 1
@@ -462,14 +859,24 @@ def _run_jobs(
             len(pending),
         )
         assert generator is not None
-        batch_results = _generate_requests_resilient(
+        batch_results, safe_batch_size, batch_was_split = _generate_requests_resilient(
             generator=generator,
             requests=requests,
             parameters=parameters,
             logger=logger,
         )
+        if batch_was_split and safe_batch_size < effective_batch_size:
+            previous_batch_size = effective_batch_size
+            effective_batch_size = safe_batch_size
+            manifest["effective_batch_size"] = effective_batch_size
+            logger.warning(
+                "batch_size_downshift previous=%d effective=%d",
+                previous_batch_size,
+                effective_batch_size,
+            )
+            _update_manifest(storage, manifest)
 
-        for request, (raw_completion, generation_error) in zip(
+        for request, (raw_completion, generation_error, generation_batch_size) in zip(
             requests,
             batch_results,
             strict=True,
@@ -504,7 +911,6 @@ def _run_jobs(
             attempt_record = {
                 "record_id": job.record_id,
                 "emotion": job.emotion,
-                "emotion_group": EMOTION_GROUP[job.emotion],
                 "topic_id": job.topic.topic_id,
                 "topic": job.topic.topic,
                 "sample_index": job.sample_index,
@@ -519,6 +925,7 @@ def _run_jobs(
                 "emotion_word_present": word_present,
                 "non_latin_letter_present": non_latin_letter_present,
                 "generation_error": generation_error,
+                "generation_batch_size": generation_batch_size,
                 "created_at": utc_now(),
             }
             storage.append_attempt(attempt_record)
@@ -595,9 +1002,10 @@ def _generate_requests_resilient(
     requests: list[AttemptRequest],
     parameters: GenerationParameters,
     logger: logging.Logger,
-) -> list[tuple[str | None, str | None]]:
-    """Generate a batch, splitting failures until a single bad row is isolated."""
+) -> tuple[list[tuple[str | None, str | None, int]], int, bool]:
+    """Generate a batch, splitting only OOMs and reporting a reusable safe size."""
 
+    oom_message: str | None = None
     try:
         completions = generator.generate_batch(
             prompts=[request.prompt for request in requests],
@@ -609,29 +1017,50 @@ def _generate_requests_resilient(
                 "Generator returned an unexpected number of completions: "
                 f"{len(completions)} for {len(requests)} requests"
             )
-        return [(completion, None) for completion in completions]
-    except Exception as error:
-        generator.clear_device_cache()
-        logger.warning(
-            "technical_batch_failure size=%d error=%s",
+        return (
+            [(completion, None, len(requests)) for completion in completions],
             len(requests),
-            error,
+            False,
         )
-        if len(requests) == 1:
-            return [(None, str(error))]
+    except Exception as error:
+        if not _is_out_of_memory_error(error):
+            logger.error(
+                "systemic_generation_failure size=%d error=%s",
+                len(requests),
+                error,
+            )
+            raise
+        oom_message = str(error)
+        # Do not recurse while the exception traceback still owns failed
+        # generation-frame tensors; clearing the allocator cannot free live tensors.
+        error.__traceback__ = None
 
-        midpoint = len(requests) // 2
-        return _generate_requests_resilient(
-            generator=generator,
-            requests=requests[:midpoint],
-            parameters=parameters,
-            logger=logger,
-        ) + _generate_requests_resilient(
-            generator=generator,
-            requests=requests[midpoint:],
-            parameters=parameters,
-            logger=logger,
+    assert oom_message is not None
+    generator.clear_device_cache()
+    logger.warning("oom_batch_split size=%d error=%s", len(requests), oom_message)
+    if len(requests) == 1:
+        raise RuntimeError(
+            f"Model generation is out of memory at batch size 1: {oom_message}"
         )
+
+    midpoint = len(requests) // 2
+    left_results, left_safe_size, _ = _generate_requests_resilient(
+        generator=generator,
+        requests=requests[:midpoint],
+        parameters=parameters,
+        logger=logger,
+    )
+    right_results, right_safe_size, _ = _generate_requests_resilient(
+        generator=generator,
+        requests=requests[midpoint:],
+        parameters=parameters,
+        logger=logger,
+    )
+    return (
+        left_results + right_results,
+        max(left_safe_size, right_safe_size),
+        True,
+    )
 
 
 def _accept_selected_story(
@@ -660,7 +1089,6 @@ def _accept_selected_story(
     accepted_record = {
         "record_id": job.record_id,
         "emotion": job.emotion,
-        "emotion_group": EMOTION_GROUP[job.emotion],
         "topic_id": job.topic.topic_id,
         "topic": job.topic.topic,
         "sample_index": job.sample_index,
@@ -671,6 +1099,7 @@ def _accept_selected_story(
         "generator_model": model_name,
         "model_revision": model_revision,
         "generation_parameters": parameters.as_dict(),
+        "generation_batch_size": int(selected["generation_batch_size"]),
         "accepted_seed": int(selected["seed"]),
         "attempt_count": state.max_attempt_number,
         "emotion_word_present": emotion_word_present,
@@ -724,17 +1153,390 @@ def load_topics(path: Path) -> list[Topic]:
     return topics
 
 
+def _preflight_output_state(
+    *,
+    output_dir: Path,
+    resume: bool,
+    run_config: dict[str, Any],
+) -> str:
+    """Inspect output compatibility without creating or repairing any files."""
+
+    if not output_dir.exists():
+        return "new"
+    if not output_dir.is_dir():
+        raise NotADirectoryError(f"Output path is not a directory: {output_dir}")
+    if not any(output_dir.iterdir()):
+        return "new_empty_directory"
+    if not resume:
+        raise FileExistsError(
+            f"Output directory is not empty: {output_dir}. "
+            "Choose another directory or pass --resume."
+        )
+    storage = DatasetStorage(output_dir, resume=True)
+    storage.validate_run_config(run_config)
+    return "compatible_resume"
+
+
+def _validate_accepted_records(
+    *,
+    storage: DatasetStorage,
+    jobs: list[GenerationJob],
+    model_name: str,
+    model_revision: str | None,
+    parameters: GenerationParameters,
+    base_seed: int | None = None,
+    max_attempts: int | None = None,
+) -> dict[RecordKey, dict[str, Any]]:
+    """Stream-check accepted files before trusting their keys for resume."""
+
+    expected_by_key = {job.key: job for job in jobs}
+    expected_files = {f"{job.emotion_slug}.jsonl" for job in jobs}
+    records_dir = storage.records_dir
+    actual_files = (
+        {path.name for path in records_dir.glob("*.jsonl") if path.is_file()}
+        if records_dir.exists()
+        else set()
+    )
+    if actual_files != expected_files:
+        missing = sorted(expected_files - actual_files)
+        unexpected = sorted(actual_files - expected_files)
+        raise ValueError(
+            "Accepted record files do not match the emotion configuration: "
+            f"missing={missing[:3]!r}, unexpected={unexpected[:3]!r}"
+        )
+
+    seen: set[RecordKey] = set()
+    accepted_records: dict[RecordKey, dict[str, Any]] = {}
+    expected_parameters = parameters.as_dict()
+    for path, line_number, row in storage.iter_accepted_records():
+        location = f"{path}:{line_number}"
+        _validate_record_fields(
+            row=row,
+            expected=ACCEPTED_RECORD_FIELDS,
+            kind="Accepted record",
+            location=location,
+        )
+        try:
+            emotion = row["emotion"]
+            topic_id = row["topic_id"]
+            sample_index = row["sample_index"]
+        except KeyError as error:
+            raise ValueError(f"Missing record key field in {location}: {error}") from error
+        if not isinstance(emotion, str):
+            raise ValueError(f"Invalid emotion in {location}")
+        if isinstance(topic_id, bool) or not isinstance(topic_id, int):
+            raise ValueError(f"Invalid topic_id in {location}")
+        if isinstance(sample_index, bool) or not isinstance(sample_index, int):
+            raise ValueError(f"Invalid sample_index in {location}")
+        key = (emotion, topic_id, sample_index)
+        job = expected_by_key.get(key)
+        if job is None:
+            raise ValueError(f"Unexpected accepted record key {key!r} in {location}")
+        if key in seen:
+            raise ValueError(f"Duplicate accepted record key {key!r} in {location}")
+        seen.add(key)
+        accepted_records[key] = row
+
+        expected_fields: dict[str, Any] = {
+            "record_id": job.record_id,
+            "topic": job.topic.topic,
+            "prompt_version": PROMPT_VERSION,
+            "prompt": render_story_prompt(
+                topic=job.topic.topic,
+                emotion=job.emotion,
+            ),
+            "generator_model": model_name,
+            "model_revision": model_revision,
+            "generation_parameters": expected_parameters,
+            "non_latin_letter_present": False,
+        }
+        for field, expected in expected_fields.items():
+            if row.get(field) != expected:
+                raise ValueError(
+                    f"Accepted record field {field!r} in {location} is "
+                    f"{row.get(field)!r}, expected {expected!r}"
+                )
+        if path.stem != job.emotion_slug:
+            raise ValueError(
+                f"Accepted record {job.record_id} is stored in the wrong file: {path}"
+            )
+        story = row.get("story")
+        if not isinstance(story, str) or not story:
+            raise ValueError(f"Accepted record has no story in {location}")
+        if contains_non_latin_letter(story):
+            raise ValueError(f"Accepted record contains non-Latin letters in {location}")
+        word_present = contains_exact_emotion_word(
+            generated_text=story,
+            emotion=job.emotion,
+        )
+        if row.get("emotion_word_present") is not word_present:
+            raise ValueError(f"Incorrect emotion_word_present flag in {location}")
+
+        attempt_count = row.get("attempt_count")
+        accepted_seed = row.get("accepted_seed")
+        if isinstance(attempt_count, bool) or not isinstance(attempt_count, int):
+            raise ValueError(f"Invalid attempt_count in {location}")
+        if attempt_count < 1:
+            raise ValueError(f"attempt_count must be positive in {location}")
+        if max_attempts is not None and attempt_count > max_attempts:
+            raise ValueError(f"attempt_count exceeds the configured maximum in {location}")
+        expected_after_max = bool(
+            max_attempts is not None
+            and attempt_count >= max_attempts
+            and word_present
+        )
+        if row.get("accepted_after_max_attempts") is not expected_after_max:
+            raise ValueError(f"Incorrect accepted_after_max_attempts flag in {location}")
+        if isinstance(accepted_seed, bool) or not isinstance(accepted_seed, int):
+            raise ValueError(f"Invalid accepted_seed in {location}")
+        generation_batch_size = row.get("generation_batch_size")
+        if (
+            isinstance(generation_batch_size, bool)
+            or not isinstance(generation_batch_size, int)
+            or generation_batch_size < 1
+        ):
+            raise ValueError(f"Invalid generation_batch_size in {location}")
+        if base_seed is not None:
+            possible_seeds = {
+                create_seed(
+                    base_seed=base_seed,
+                    emotion=job.emotion,
+                    topic_id=job.topic.topic_id,
+                    sample_index=job.sample_index,
+                    attempt_number=attempt_number,
+                )
+                for attempt_number in range(1, attempt_count + 1)
+            }
+            if accepted_seed not in possible_seeds:
+                raise ValueError(f"accepted_seed is not from this job in {location}")
+
+    if seen != set(expected_by_key) and len(seen) == len(expected_by_key):
+        # The size equality makes this unreachable after per-row membership checks,
+        # but retains an explicit full-key-set invariant for future changes.
+        raise ValueError("Accepted key coverage does not match the requested plan")
+    return accepted_records
+
+
+def _validate_attempt_records(
+    *,
+    storage: DatasetStorage,
+    jobs: list[GenerationJob],
+    accepted_records: dict[RecordKey, dict[str, Any]],
+    model_name: str,
+    model_revision: str | None,
+    base_seed: int,
+    max_attempts: int,
+) -> None:
+    """Validate retry history and tie every accepted row to its saved attempt."""
+
+    expected_by_key = {job.key: job for job in jobs}
+    attempts_by_key: dict[RecordKey, list[dict[str, Any]]] = {}
+    for line_number, row in storage.iter_attempt_records():
+        location = f"{storage.attempts_path}:{line_number}"
+        _validate_record_fields(
+            row=row,
+            expected=ATTEMPT_RECORD_FIELDS,
+            kind="Attempt record",
+            location=location,
+        )
+        try:
+            emotion = row["emotion"]
+            topic_id = row["topic_id"]
+            sample_index = row["sample_index"]
+            attempt_number = row["attempt_number"]
+            seed = row["seed"]
+        except KeyError as error:
+            raise ValueError(f"Missing attempt field in {location}: {error}") from error
+        if not isinstance(emotion, str):
+            raise ValueError(f"Invalid attempt emotion in {location}")
+        if isinstance(topic_id, bool) or not isinstance(topic_id, int):
+            raise ValueError(f"Invalid attempt topic_id in {location}")
+        if isinstance(sample_index, bool) or not isinstance(sample_index, int):
+            raise ValueError(f"Invalid attempt sample_index in {location}")
+        if isinstance(attempt_number, bool) or not isinstance(attempt_number, int):
+            raise ValueError(f"Invalid attempt_number in {location}")
+        if not 1 <= attempt_number <= max_attempts:
+            raise ValueError(f"attempt_number is outside the configured range in {location}")
+        if isinstance(seed, bool) or not isinstance(seed, int):
+            raise ValueError(f"Invalid attempt seed in {location}")
+
+        key = (emotion, topic_id, sample_index)
+        job = expected_by_key.get(key)
+        if job is None:
+            raise ValueError(f"Unexpected attempt record key {key!r} in {location}")
+        expected_seed = create_seed(
+            base_seed=base_seed,
+            emotion=job.emotion,
+            topic_id=job.topic.topic_id,
+            sample_index=job.sample_index,
+            attempt_number=attempt_number,
+        )
+        expected_fields: dict[str, Any] = {
+            "record_id": job.record_id,
+            "topic": job.topic.topic,
+            "seed": expected_seed,
+            "prompt_version": PROMPT_VERSION,
+            "prompt": render_story_prompt(
+                topic=job.topic.topic,
+                emotion=job.emotion,
+            ),
+            "generator_model": model_name,
+            "model_revision": model_revision,
+        }
+        for field, expected in expected_fields.items():
+            if row.get(field) != expected:
+                raise ValueError(
+                    f"Attempt field {field!r} in {location} is "
+                    f"{row.get(field)!r}, expected {expected!r}"
+                )
+        generation_batch_size = row.get("generation_batch_size")
+        if (
+            isinstance(generation_batch_size, bool)
+            or not isinstance(generation_batch_size, int)
+            or generation_batch_size < 1
+        ):
+            raise ValueError(f"Invalid attempt generation_batch_size in {location}")
+
+        story = row.get("story")
+        generation_error = row.get("generation_error")
+        if story is None:
+            if row.get("emotion_word_present") is not None:
+                raise ValueError(f"Invalid emotion-word flag for failed attempt in {location}")
+            if row.get("non_latin_letter_present") is not None:
+                raise ValueError(f"Invalid script flag for failed attempt in {location}")
+            if not isinstance(generation_error, str) or not generation_error:
+                raise ValueError(f"Missing generation_error for null story in {location}")
+        elif isinstance(story, str):
+            word_present = contains_exact_emotion_word(
+                generated_text=story,
+                emotion=job.emotion,
+            )
+            non_latin = contains_non_latin_letter(story)
+            if row.get("emotion_word_present") is not word_present:
+                raise ValueError(f"Incorrect attempt emotion-word flag in {location}")
+            if row.get("non_latin_letter_present") is not non_latin:
+                raise ValueError(f"Incorrect attempt script flag in {location}")
+            if generation_error is not None:
+                raise ValueError(f"Successful attempt has generation_error in {location}")
+        else:
+            raise ValueError(f"Invalid attempt story in {location}")
+        attempts_by_key.setdefault(key, []).append(row)
+
+    for key, attempts in attempts_by_key.items():
+        attempt_numbers = [int(row["attempt_number"]) for row in attempts]
+        expected_numbers = list(range(1, max(attempt_numbers) + 1))
+        if attempt_numbers != expected_numbers:
+            raise ValueError(
+                f"Attempt sequence for record key {key!r} is {attempt_numbers!r}, "
+                f"expected {expected_numbers!r}"
+            )
+
+    for key, accepted in accepted_records.items():
+        attempts = attempts_by_key.get(key, [])
+        accepted_seed = int(accepted["accepted_seed"])
+        selected_matches = [
+            attempt for attempt in attempts if attempt.get("seed") == accepted_seed
+        ]
+        if len(selected_matches) != 1:
+            raise ValueError(
+                f"Accepted record key {key!r} does not select exactly one saved attempt"
+            )
+        selected = selected_matches[0]
+        if accepted.get("attempt_count") != len(attempts):
+            raise ValueError(
+                f"Accepted record key {key!r} has an inconsistent attempt_count"
+            )
+        copied_fields = (
+            "prompt",
+            "raw_completion",
+            "story",
+            "emotion_word_present",
+            "non_latin_letter_present",
+            "generation_batch_size",
+        )
+        for field in copied_fields:
+            if accepted.get(field) != selected.get(field):
+                raise ValueError(
+                    f"Accepted record key {key!r} does not match its attempt field "
+                    f"{field!r}"
+                )
+
+
+def _validate_record_fields(
+    *,
+    row: dict[str, Any],
+    expected: frozenset[str],
+    kind: str,
+    location: str,
+) -> None:
+    actual = set(row)
+    if actual != expected:
+        missing = sorted(expected - actual)
+        unexpected = sorted(actual - expected)
+        raise ValueError(
+            f"{kind} fields do not match the flat story schema in {location}: "
+            f"missing={missing!r}, unexpected={unexpected!r}"
+        )
+
+
+def _is_immutable_revision(revision: str | None) -> bool:
+    return bool(revision and re.fullmatch(r"[0-9a-fA-F]{40}", revision))
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _validate_sha256_expectation(
+    *,
+    parser: argparse.ArgumentParser,
+    option: str,
+    expected: str,
+    actual: str,
+) -> None:
+    normalized = expected.casefold()
+    if not re.fullmatch(r"[0-9a-f]{64}", normalized):
+        parser.error(f"{option} must be exactly 64 hexadecimal characters")
+    if normalized != actual:
+        parser.error(f"{option} expected {normalized}, but the resolved file is {actual}")
+
+
+def _is_out_of_memory_error(error: BaseException) -> bool:
+    """Recognize resource exhaustion without masking unrelated model failures."""
+
+    current: BaseException | None = error
+    while current is not None:
+        if current.__class__.__name__ in {"OutOfMemoryError", "CUDAOutOfMemoryError"}:
+            return True
+        message = str(current).casefold()
+        if "out of memory" in message or "not enough memory" in message:
+            return True
+        current = current.__cause__ or current.__context__
+    return False
+
+
 def _create_jobs(
     *,
-    emotions: tuple[str, ...],
+    emotion_specs: tuple[EmotionSpec, ...],
     topics: list[Topic],
     samples_per_pair: int,
     base_seed: int,
 ) -> list[GenerationJob]:
     randomizer = random.Random(base_seed)
+    emotions = tuple(spec.emotion for spec in emotion_specs)
+    slugs = {spec.emotion: spec.slug for spec in emotion_specs}
     jobs_by_emotion = {
         emotion: [
-            GenerationJob(emotion=emotion, topic=topic, sample_index=sample_index)
+            GenerationJob(
+                emotion=emotion,
+                emotion_slug=slugs[emotion],
+                topic=topic,
+                sample_index=sample_index,
+            )
             for topic in topics
             for sample_index in range(samples_per_pair)
         ]
@@ -785,10 +1587,14 @@ def _generation_calls_remain(
 
 def _build_run_config(
     *,
-    emotions: tuple[str, ...],
+    emotion_specs: tuple[EmotionSpec, ...],
+    emotion_config_path: Path | None,
+    emotion_config_sha256: str | None,
     topics: list[Topic],
     topics_path: Path,
+    topics_sha256: str,
     model_name: str,
+    model_revision: str | None,
     samples_per_pair: int,
     max_attempts: int,
     base_seed: int,
@@ -797,15 +1603,28 @@ def _build_run_config(
     dtype: str,
     output_dir: Path,
     created_at: str,
+    attn_implementation: str | None,
+    prompt_role: str,
+    generation_request: str,
+    chat_system_instruction: str | None,
+    eos_token_policy: str,
+    trust_remote_code: bool,
 ) -> dict[str, Any]:
+    emotions = tuple(spec.emotion for spec in emotion_specs)
     return {
+        "schema_version": 2,
         "emotions": list(emotions),
-        "emotion_groups": {
-            "negative": [emotion for emotion in emotions if emotion in NEGATIVE_EMOTIONS],
-            "positive": [emotion for emotion in emotions if emotion in POSITIVE_EMOTIONS],
+        "emotion_record_stems": {
+            spec.emotion: spec.slug for spec in emotion_specs
         },
+        "emotion_config_source": (
+            str(emotion_config_path) if emotion_config_path is not None else None
+        ),
+        "emotion_config_sha256": emotion_config_sha256,
         "generator_model": model_name,
+        "model_revision": model_revision,
         "topics_source": str(topics_path),
+        "topics_sha256": topics_sha256,
         "topics": [
             {"topic_id": topic.topic_id, "topic": topic.topic} for topic in topics
         ],
@@ -817,6 +1636,12 @@ def _build_run_config(
         "generation_parameters": parameters.as_dict(),
         "device": device,
         "dtype": dtype,
+        "attn_implementation": attn_implementation,
+        "prompt_role": prompt_role,
+        "generation_request": generation_request,
+        "chat_system_instruction": chat_system_instruction,
+        "eos_token_policy": eos_token_policy,
+        "trust_remote_code": trust_remote_code,
         "output_path": str(output_dir),
         "created_at": created_at,
     }
@@ -952,6 +1777,13 @@ def _positive_int(raw: str) -> int:
     value = int(raw)
     if value < 1:
         raise argparse.ArgumentTypeError("value must be at least 1")
+    return value
+
+
+def _nonnegative_int(raw: str) -> int:
+    value = int(raw)
+    if value < 0:
+        raise argparse.ArgumentTypeError("value must be at least 0")
     return value
 
 

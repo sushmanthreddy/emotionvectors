@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""CLI entry point for layer-wise neutral-PCA vector cleaning."""
+"""CLI entry point for projecting neutral PCA directions out of raw vectors."""
 
-from emotionvectors.extraction.neutral_pca import main
+from emotionvectors.extraction.clean_vectors import main
 
 
 if __name__ == "__main__":

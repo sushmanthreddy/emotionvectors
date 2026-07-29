@@ -4,12 +4,14 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import logging
 import math
 import random
 import re
 import sys
+from collections import deque
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -22,7 +24,7 @@ from .model import (
     LocalHuggingFaceGenerator,
     contains_non_latin_letter,
 )
-from .seeds import create_seed, seed_random_generators
+from .seeds import create_seed
 from .storage import (
     append_jsonl,
     atomic_write_json,
@@ -48,6 +50,51 @@ DEFAULT_TOPICS_PATH = Path("config/topics.json")
 DEFAULT_OUTPUT_DIR = Path("outputs/neutral_dialogues")
 LABEL = "neutral"
 MAX_TOTAL_ATTEMPTS = 20
+ATTEMPT_RECORD_FIELDS = frozenset(
+    {
+        "record_id",
+        "label",
+        "topic_id",
+        "topic",
+        "sample_index",
+        "attempt_number",
+        "seed",
+        "dialogue_type",
+        "system_instruction_included",
+        "prompt_version",
+        "prompt",
+        "raw_completion",
+        "dialogue_person_ai",
+        "structurally_valid",
+        "non_latin_letter_present",
+        "failure_reasons",
+        "generation_error",
+        "created_at",
+    }
+)
+ACCEPTED_RECORD_FIELDS = frozenset(
+    {
+        "record_id",
+        "label",
+        "topic_id",
+        "topic",
+        "sample_index",
+        "dialogue_type",
+        "system_instruction_included",
+        "prompt_version",
+        "prompt",
+        "raw_completion",
+        "dialogue_person_ai",
+        "transcript",
+        "generator_model",
+        "accepted_seed",
+        "attempt_count",
+        "structurally_valid",
+        "non_latin_letter_present",
+        "accepted_after_max_attempts",
+        "created_at",
+    }
+)
 
 SPEAKER_RE = re.compile(r"^(Person|AI):")
 OTHER_SPEAKER_RE = re.compile(
@@ -176,26 +223,62 @@ class AttemptState:
     latest_attempt: dict[str, Any] | None = None
 
 
+@dataclass(frozen=True)
+class AttemptRequest:
+    job: GenerationJob
+    state: AttemptState
+    prompt: str
+    attempt_number: int
+    seed: int
+    created_at: str
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
-            "Generate independent neutral Person-AI dialogues with "
-            "Qwen/Qwen2.5-7B-Instruct."
+            "Generate independent neutral Person-AI dialogues with a local model."
         )
     )
     parser.add_argument("--model", default=DEFAULT_MODEL)
     parser.add_argument(
         "--model-revision",
-        default=MODEL_REVISION,
-        help="Pinned Hugging Face commit for the model and tokenizer",
+        default=None,
+        help=(
+            "Pinned Hugging Face commit for the model and tokenizer. "
+            "The released 7B model defaults to its pinned revision; other models "
+            "should pass an immutable revision explicitly."
+        ),
     )
     parser.add_argument("--topics", type=Path, default=DEFAULT_TOPICS_PATH)
+    parser.add_argument(
+        "--expected-topics-sha256",
+        default=None,
+        help="Optional lowercase SHA-256 guard for the exact topics file bytes",
+    )
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--samples-per-topic", type=_positive_int, default=12)
     parser.add_argument("--max-topics", type=_positive_int, default=None)
     parser.add_argument("--max-attempts", type=_attempt_count, default=20)
+    parser.add_argument(
+        "--batch-size",
+        type=_positive_int,
+        default=1,
+        help="Execution-only prompt batch size; does not alter dataset identity",
+    )
     parser.add_argument("--temperature", type=_positive_float, default=0.9)
     parser.add_argument("--top-p", type=_top_p, default=0.95)
+    parser.add_argument(
+        "--top-k",
+        type=_nonnegative_int,
+        default=None,
+        help="Optional explicit sampling cutoff; zero disables top-k",
+    )
+    parser.add_argument(
+        "--repetition-penalty",
+        type=_positive_float,
+        default=None,
+        help="Optional explicit Transformers-compatible repetition penalty",
+    )
     parser.add_argument(
         "--do-sample",
         action=argparse.BooleanOptionalAction,
@@ -209,19 +292,79 @@ def build_parser() -> argparse.ArgumentParser:
         default="bfloat16",
         choices=("auto", "bfloat16", "bf16", "float16", "fp16", "float32", "fp32"),
     )
+    parser.add_argument(
+        "--attn-implementation",
+        default=None,
+        choices=("eager", "sdpa", "flash_attention_2"),
+    )
+    parser.add_argument(
+        "--eos-token-policy",
+        choices=("model", "tokenizer"),
+        default="tokenizer",
+    )
+    parser.add_argument(
+        "--trust-remote-code",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+    )
+    parser.add_argument(
+        "--local-files-only",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+    )
+    parser.add_argument(
+        "--require-model-revision",
+        action="store_true",
+        help="Require --model-revision to be a 40-character hexadecimal commit",
+    )
+    parser.add_argument(
+        "--expected-topics",
+        type=_positive_int,
+        default=None,
+        help="Pre-model-load guard for the exact topic count",
+    )
+    parser.add_argument(
+        "--expected-dialogues",
+        type=_positive_int,
+        default=None,
+        help="Pre-model-load guard for topics × samples",
+    )
     parser.add_argument("--resume", action="store_true")
+    run_mode = parser.add_mutually_exclusive_group()
+    run_mode.add_argument(
+        "--preflight-only",
+        action="store_true",
+        help="Validate and print the run plan without writing outputs or loading a model",
+    )
+    run_mode.add_argument(
+        "--validate-only",
+        action="store_true",
+        help="Require exact completed output coverage without loading a model",
+    )
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    if args.model != DEFAULT_MODEL:
-        parser.error(f"--model must be exactly {DEFAULT_MODEL}")
-    if args.model_revision != MODEL_REVISION:
-        parser.error(f"--model-revision must be exactly {MODEL_REVISION}")
+    model_revision = args.model_revision
+    if model_revision is None and args.model == DEFAULT_MODEL:
+        model_revision = MODEL_REVISION
+    if args.model != DEFAULT_MODEL and not _is_immutable_revision(model_revision):
+        parser.error(
+            "Non-default models require --model-revision as a 40-character "
+            "hexadecimal commit"
+        )
+    if args.require_model_revision and not _is_immutable_revision(model_revision):
+        parser.error(
+            "--require-model-revision needs --model-revision to be a 40-character "
+            "hexadecimal commit"
+        )
+    args.model_revision = model_revision
+
     try:
         topics_path = args.topics.expanduser().resolve()
+        topics_sha256 = _sha256_file(topics_path)
         topics = load_topics(topics_path)
     except (OSError, ValueError, json.JSONDecodeError) as error:
         parser.error(str(error))
@@ -229,11 +372,29 @@ def main(argv: Sequence[str] | None = None) -> int:
         topics = topics[: args.max_topics]
     if not topics:
         parser.error("At least one topic is required")
+    if args.expected_topics_sha256 is not None:
+        _validate_sha256_expectation(
+            parser=parser,
+            option="--expected-topics-sha256",
+            expected=args.expected_topics_sha256,
+            actual=topics_sha256,
+        )
+
+    intended_dialogues = len(topics) * args.samples_per_topic
+    count_expectations = (
+        ("--expected-topics", args.expected_topics, len(topics)),
+        ("--expected-dialogues", args.expected_dialogues, intended_dialogues),
+    )
+    for option, expected, actual in count_expectations:
+        if expected is not None and expected != actual:
+            parser.error(f"{option} expected {expected}, but the resolved run has {actual}")
 
     output_dir = args.output_dir.expanduser().resolve()
     parameters = GenerationParameters(
         temperature=args.temperature,
         top_p=args.top_p,
+        top_k=args.top_k,
+        repetition_penalty=args.repetition_penalty,
         do_sample=args.do_sample,
         max_new_tokens=args.max_new_tokens,
     )
@@ -243,19 +404,50 @@ def main(argv: Sequence[str] | None = None) -> int:
         base_seed=args.base_seed,
     )
     intended_keys = {job.key for job in jobs}
+    if len(intended_keys) != intended_dialogues:
+        parser.error("Internal key collision in the neutral-dialogue plan")
     paths = output_paths(output_dir)
     created_at = utc_now()
     run_config = build_run_config(
         args=args,
         topics=topics,
         topics_path=topics_path,
+        topics_sha256=topics_sha256,
         output_dir=output_dir,
         parameters=parameters,
         created_at=created_at,
     )
+
+    if args.preflight_only:
+        try:
+            output_state = preflight_output_state(
+                paths=paths,
+                run_config=run_config,
+                resume=args.resume,
+            )
+        except (OSError, ValueError, json.JSONDecodeError) as error:
+            parser.error(str(error))
+        print(
+            json.dumps(
+                {
+                    "status": "preflight_passed",
+                    "generator_model": args.model,
+                    "model_revision": model_revision,
+                    "number_of_topics": len(topics),
+                    "samples_per_topic": args.samples_per_topic,
+                    "intended_dialogues": intended_dialogues,
+                    "output_dir": str(output_dir),
+                    "output_state": output_state,
+                    "model_loaded": False,
+                },
+                indent=2,
+            )
+        )
+        return 0
+
     startup_manifest = build_manifest(
         model_name=args.model,
-        model_revision=args.model_revision,
+        model_revision=model_revision,
         base_seed=args.base_seed,
         topics=topics,
         samples_per_topic=args.samples_per_topic,
@@ -268,6 +460,126 @@ def main(argv: Sequence[str] | None = None) -> int:
         parameters=parameters,
         created_at=created_at,
     )
+    if args.batch_size != 1:
+        startup_manifest["execution_batch_size"] = args.batch_size
+        startup_manifest["effective_batch_size"] = args.batch_size
+
+    if args.validate_only:
+        try:
+            persisted_config = validate_existing_output(
+                paths=paths,
+                run_config=run_config,
+            )
+            completed_keys, accepted_after_max_attempts = load_completed_keys(
+                paths["accepted"],
+                repair=False,
+            )
+            unexpected_completed = completed_keys - intended_keys
+            if unexpected_completed:
+                raise ValueError(
+                    "Accepted output contains keys outside this run: "
+                    f"{sorted(unexpected_completed)[:3]!r}"
+                )
+            attempt_states, total_attempts = load_attempt_states(
+                paths["attempts"],
+                completed_keys=completed_keys,
+                intended_keys=intended_keys,
+                max_attempts=args.max_attempts,
+                repair=False,
+            )
+            validate_output_records(
+                accepted_path=paths["accepted"],
+                attempts_path=paths["attempts"],
+                jobs=jobs,
+                model_name=args.model,
+                base_seed=args.base_seed,
+                max_attempts=args.max_attempts,
+            )
+            failed_keys = terminal_failure_keys(
+                jobs=jobs,
+                attempt_states=attempt_states,
+                completed_keys=completed_keys,
+                max_attempts=args.max_attempts,
+            )
+            persisted_manifest = read_json_object(paths["manifest"])
+        except (OSError, ValueError, json.JSONDecodeError) as error:
+            print(
+                json.dumps(
+                    {
+                        "status": "validation_failed",
+                        "errors": [str(error)],
+                        "model_loaded": False,
+                    },
+                    indent=2,
+                ),
+                file=sys.stderr,
+            )
+            return 1
+
+        validation_errors: list[str] = []
+        missing_keys = intended_keys - completed_keys
+        if missing_keys:
+            validation_errors.append(
+                f"{len(missing_keys)} accepted dialogues are missing"
+            )
+        if failed_keys:
+            validation_errors.append(
+                f"{len(failed_keys)} dialogues are terminal failures"
+            )
+        expected_manifest_fields: dict[str, Any] = {
+            "generator_model": args.model,
+            "model_revision": model_revision,
+            "prompt_version": PROMPT_VERSION,
+            "label": LABEL,
+            "base_seed": args.base_seed,
+            "number_of_topics": len(topics),
+            "samples_per_topic": args.samples_per_topic,
+            "max_attempts": args.max_attempts,
+            "intended_dialogues": intended_dialogues,
+            "accepted_dialogues": len(completed_keys),
+            "accepted_after_max_attempts": accepted_after_max_attempts,
+            "failed_dialogues": len(failed_keys),
+            "total_generation_attempts": total_attempts,
+            "generation_parameters": parameters.as_dict(),
+            "status": "completed",
+        }
+        for field, expected in expected_manifest_fields.items():
+            if persisted_manifest.get(field) != expected:
+                validation_errors.append(
+                    f"manifest {field} is {persisted_manifest.get(field)!r}, "
+                    f"expected {expected!r}"
+                )
+        if validation_errors:
+            print(
+                json.dumps(
+                    {
+                        "status": "validation_failed",
+                        "errors": validation_errors,
+                        "accepted_dialogues": len(completed_keys),
+                        "intended_dialogues": intended_dialogues,
+                        "model_loaded": False,
+                    },
+                    indent=2,
+                ),
+                file=sys.stderr,
+            )
+            return 1
+        print(
+            json.dumps(
+                {
+                    "status": "validation_passed",
+                    "accepted_dialogues": len(completed_keys),
+                    "intended_dialogues": intended_dialogues,
+                    "failed_dialogues": 0,
+                    "configuration_created_at": persisted_config[
+                        "creation_timestamp"
+                    ],
+                    "model_loaded": False,
+                },
+                indent=2,
+            )
+        )
+        return 0
 
     try:
         persisted_config = prepare_output(
@@ -282,7 +594,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             write_manifest(paths["manifest"], startup_manifest)
         logger = configure_logging(paths["log"])
         completed_keys, accepted_after_max_attempts = load_completed_keys(
-            paths["accepted"]
+            paths["accepted"],
+            repair=True,
         )
         unexpected_completed = completed_keys - intended_keys
         if unexpected_completed:
@@ -294,6 +607,15 @@ def main(argv: Sequence[str] | None = None) -> int:
             paths["attempts"],
             completed_keys=completed_keys,
             intended_keys=intended_keys,
+            max_attempts=args.max_attempts,
+            repair=True,
+        )
+        validate_output_records(
+            accepted_path=paths["accepted"],
+            attempts_path=paths["attempts"],
+            jobs=jobs,
+            model_name=args.model,
+            base_seed=args.base_seed,
             max_attempts=args.max_attempts,
         )
         completed_keys = set(completed_keys)
@@ -315,7 +637,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         manifest = build_manifest(
             model_name=args.model,
-            model_revision=args.model_revision,
+            model_revision=model_revision,
             base_seed=args.base_seed,
             topics=topics,
             samples_per_topic=args.samples_per_topic,
@@ -328,6 +650,20 @@ def main(argv: Sequence[str] | None = None) -> int:
             parameters=parameters,
             created_at=str(persisted_config["creation_timestamp"]),
         )
+        effective_batch_size = args.batch_size
+        previous_effective: Any = None
+        if args.resume and paths["manifest"].exists():
+            previous_manifest = read_json_object(paths["manifest"])
+            previous_effective = previous_manifest.get("effective_batch_size")
+            if (
+                isinstance(previous_effective, int)
+                and not isinstance(previous_effective, bool)
+                and previous_effective > 0
+            ):
+                effective_batch_size = min(effective_batch_size, previous_effective)
+        if args.batch_size != 1 or previous_effective is not None:
+            manifest["execution_batch_size"] = args.batch_size
+            manifest["effective_batch_size"] = effective_batch_size
         write_manifest(paths["manifest"], manifest)
     except KeyboardInterrupt:
         if paths["config"].exists():
@@ -352,12 +688,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         if len(completed_keys) + len(failed_keys) < len(jobs):
             generator = LocalHuggingFaceGenerator(
                 model_name=args.model,
-                model_revision=args.model_revision,
+                model_revision=model_revision,
                 generation_request=GENERATION_REQUEST,
                 prompt_role=CHAT_PROMPT_ROLE,
                 chat_system_instruction=CHAT_SYSTEM_INSTRUCTION,
                 device=args.device,
                 dtype=args.dtype,
+                attn_implementation=args.attn_implementation,
+                trust_remote_code=args.trust_remote_code,
+                local_files_only=args.local_files_only,
+                use_model_eos_tokens=args.eos_token_policy == "model",
             )
         run_jobs(
             jobs=jobs,
@@ -374,6 +714,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             max_attempts=args.max_attempts,
             parameters=parameters,
             logger=logger,
+            batch_size=effective_batch_size,
         )
     except KeyboardInterrupt:
         refresh_manifest_counts(
@@ -429,38 +770,86 @@ def run_jobs(
     max_attempts: int,
     parameters: GenerationParameters,
     logger: logging.Logger,
+    batch_size: int,
 ) -> None:
     intended_dialogues = len(jobs)
-    for job in jobs:
-        if job.key in completed_keys or job.key in failed_keys:
-            continue
-        state = attempt_states.setdefault(job.key, AttemptState())
-        prompt = render_neutral_dialogue_prompt(
-            topic=job.topic.topic,
-            dialogue_type=job.dialogue_type,
-            include_system_instruction=job.system_instruction_included,
-        )
+    pending = deque(
+        job
+        for job in jobs
+        if job.key not in completed_keys and job.key not in failed_keys
+    )
+    effective_batch_size = batch_size
+    batch_number = 0
 
-        for attempt_number in range(state.max_attempt_number + 1, max_attempts + 1):
-            logger.info(
-                "progress accepted=%d/%d topic_id=%d sample_index=%d attempt=%d "
-                "dialogue_type=%s",
-                len(completed_keys),
-                intended_dialogues,
-                job.topic.topic_id,
-                job.sample_index,
-                attempt_number,
-                job.dialogue_type,
+    while pending:
+        requests: list[AttemptRequest] = []
+        while pending and len(requests) < effective_batch_size:
+            job = pending.popleft()
+            if job.key in completed_keys or job.key in failed_keys:
+                continue
+            state = attempt_states.setdefault(job.key, AttemptState())
+            attempt_number = state.max_attempt_number + 1
+            if attempt_number > max_attempts:
+                failed_keys.add(job.key)
+                continue
+            prompt = render_neutral_dialogue_prompt(
+                topic=job.topic.topic,
+                dialogue_type=job.dialogue_type,
+                include_system_instruction=job.system_instruction_included,
             )
-            seed = create_seed(
-                base_seed,
-                LABEL,
-                job.topic.topic_id,
-                job.sample_index,
-                attempt_number,
+            requests.append(
+                AttemptRequest(
+                    job=job,
+                    state=state,
+                    prompt=prompt,
+                    attempt_number=attempt_number,
+                    seed=create_seed(
+                        base_seed,
+                        LABEL,
+                        job.topic.topic_id,
+                        job.sample_index,
+                        attempt_number,
+                    ),
+                    created_at=utc_now(),
+                )
             )
-            created_at = utc_now()
-            raw_completion: str | None = None
+
+        if not requests:
+            break
+        if generator is None:
+            raise RuntimeError("Model generator was not initialized")
+
+        batch_number += 1
+        logger.info(
+            "batch_start batch=%d size=%d accepted=%d intended=%d pending=%d",
+            batch_number,
+            len(requests),
+            len(completed_keys),
+            intended_dialogues,
+            len(pending),
+        )
+        completions, safe_batch_size, batch_was_split = (
+            _generate_requests_resilient(
+                generator=generator,
+                requests=requests,
+                parameters=parameters,
+                logger=logger,
+            )
+        )
+        if batch_was_split and safe_batch_size < effective_batch_size:
+            previous_batch_size = effective_batch_size
+            effective_batch_size = safe_batch_size
+            manifest["effective_batch_size"] = effective_batch_size
+            logger.warning(
+                "batch_size_downshift previous=%d effective=%d",
+                previous_batch_size,
+                effective_batch_size,
+            )
+            write_manifest(manifest_path, manifest)
+
+        for request, completion in zip(requests, completions, strict=True):
+            job = request.job
+            raw_completion: str | None = completion
             cleaned_dialogue: str | None = None
             structurally_valid = False
             non_latin_letter_present: bool | None = None
@@ -468,14 +857,6 @@ def run_jobs(
             failure_reasons: list[str] = []
 
             try:
-                if generator is None:
-                    raise RuntimeError("Model generator was not initialized")
-                seed_random_generators(seed)
-                raw_completion = generator.generate(
-                    prompt=prompt,
-                    seed=seed,
-                    generation_parameters=parameters,
-                )
                 cleaned_dialogue = clean_dialogue(raw_completion)
                 structurally_valid, failure_reasons = validate_dialogue_structure(
                     cleaned_dialogue,
@@ -486,9 +867,7 @@ def run_jobs(
                     failure_reasons.append("non-Latin letter present")
             except Exception as error:
                 generation_error = safe_error_message(error)
-                failure_reasons = ["generation exception"]
-                if generator is not None:
-                    generator.clear_device_cache()
+                failure_reasons = ["completion processing exception"]
 
             attempt_record = {
                 "record_id": job.record_id,
@@ -496,25 +875,24 @@ def run_jobs(
                 "topic_id": job.topic.topic_id,
                 "topic": job.topic.topic,
                 "sample_index": job.sample_index,
-                "attempt_number": attempt_number,
-                "seed": seed,
+                "attempt_number": request.attempt_number,
+                "seed": request.seed,
                 "dialogue_type": job.dialogue_type,
                 "system_instruction_included": job.system_instruction_included,
                 "prompt_version": PROMPT_VERSION,
-                "prompt": prompt,
+                "prompt": request.prompt,
                 "raw_completion": raw_completion,
                 "dialogue_person_ai": cleaned_dialogue,
                 "structurally_valid": structurally_valid,
                 "non_latin_letter_present": non_latin_letter_present,
                 "failure_reasons": failure_reasons,
                 "generation_error": generation_error,
-                "created_at": created_at,
+                "created_at": request.created_at,
             }
             append_jsonl(attempts_path, attempt_record)
-            state.max_attempt_number = attempt_number
-            state.latest_attempt = attempt_record
+            request.state.max_attempt_number = request.attempt_number
+            request.state.latest_attempt = attempt_record
             manifest["total_generation_attempts"] += 1
-            write_manifest(manifest_path, manifest)
 
             if attempt_is_acceptable(attempt_record, max_attempts=max_attempts):
                 accepted_record = accepted_record_from_attempt(
@@ -526,28 +904,87 @@ def run_jobs(
                 completed_keys.add(job.key)
                 if accepted_record["accepted_after_max_attempts"]:
                     manifest["accepted_after_max_attempts"] += 1
-                refresh_manifest_counts(
-                    manifest=manifest,
-                    completed_keys=completed_keys,
-                    failed_keys=failed_keys,
-                )
-                write_manifest(manifest_path, manifest)
-                break
-
-            if attempt_number == max_attempts:
+            elif request.attempt_number >= max_attempts:
                 failed_keys.add(job.key)
-                refresh_manifest_counts(
-                    manifest=manifest,
-                    completed_keys=completed_keys,
-                    failed_keys=failed_keys,
-                )
-                write_manifest(manifest_path, manifest)
                 logger.error(
                     "dialogue_failed record_id=%s attempts=%d reasons=%s",
                     job.record_id,
                     max_attempts,
                     ", ".join(failure_reasons),
                 )
+            else:
+                pending.append(job)
+
+        refresh_manifest_counts(
+            manifest=manifest,
+            completed_keys=completed_keys,
+            failed_keys=failed_keys,
+        )
+        write_manifest(manifest_path, manifest)
+        logger.info(
+            "batch_complete batch=%d accepted=%d failed=%d attempts=%d pending=%d",
+            batch_number,
+            manifest["accepted_dialogues"],
+            manifest["failed_dialogues"],
+            manifest["total_generation_attempts"],
+            len(pending),
+        )
+
+
+def _generate_requests_resilient(
+    *,
+    generator: LocalHuggingFaceGenerator,
+    requests: list[AttemptRequest],
+    parameters: GenerationParameters,
+    logger: logging.Logger,
+) -> tuple[list[str], int, bool]:
+    """Generate a batch, splitting only genuine OOM failures."""
+
+    oom_message: str | None = None
+    try:
+        completions = generator.generate_batch(
+            prompts=[request.prompt for request in requests],
+            seeds=[request.seed for request in requests],
+            generation_parameters=parameters,
+        )
+        if len(completions) != len(requests):
+            raise RuntimeError(
+                "Generator returned an unexpected number of completions: "
+                f"{len(completions)} for {len(requests)} requests"
+            )
+        return completions, len(requests), False
+    except Exception as error:
+        if not _is_out_of_memory_error(error):
+            logger.error(
+                "systemic_generation_failure size=%d error=%s",
+                len(requests),
+                error,
+            )
+            raise
+        oom_message = safe_error_message(error)
+        error.__traceback__ = None
+
+    generator.clear_device_cache()
+    logger.warning("oom_batch_split size=%d error=%s", len(requests), oom_message)
+    if len(requests) == 1:
+        raise RuntimeError(
+            f"Model generation is out of memory at batch size 1: {oom_message}"
+        )
+
+    midpoint = len(requests) // 2
+    left, left_safe_size, _ = _generate_requests_resilient(
+        generator=generator,
+        requests=requests[:midpoint],
+        parameters=parameters,
+        logger=logger,
+    )
+    right, right_safe_size, _ = _generate_requests_resilient(
+        generator=generator,
+        requests=requests[midpoint:],
+        parameters=parameters,
+        logger=logger,
+    )
+    return left + right, max(left_safe_size, right_safe_size), True
 
 
 def clean_dialogue(raw_completion: str) -> str:
@@ -811,6 +1248,62 @@ def output_paths(output_dir: Path) -> dict[str, Path]:
     }
 
 
+def preflight_output_state(
+    *,
+    paths: dict[str, Path],
+    run_config: dict[str, Any],
+    resume: bool,
+) -> str:
+    """Inspect output compatibility without creating or repairing files."""
+
+    output_dir = paths["directory"]
+    if not output_dir.exists():
+        return "new"
+    if not output_dir.is_dir():
+        raise NotADirectoryError(f"Output path is not a directory: {output_dir}")
+    if not any(output_dir.iterdir()):
+        return "new_empty_directory"
+    if not resume:
+        raise FileExistsError(
+            f"Output directory is not empty: {output_dir}. Pass --resume or use "
+            "another directory."
+        )
+    validate_persisted_config(paths["config"], run_config)
+    return "compatible_resume"
+
+
+def validate_existing_output(
+    *,
+    paths: dict[str, Path],
+    run_config: dict[str, Any],
+) -> dict[str, Any]:
+    """Validate the required output files without modifying their timestamps."""
+
+    output_dir = paths["directory"]
+    if not output_dir.is_dir():
+        raise ValueError(f"Output directory does not exist: {output_dir}")
+    persisted_config = validate_persisted_config(paths["config"], run_config)
+    for name in ("manifest", "attempts", "accepted", "log"):
+        path = paths[name]
+        if not path.is_file():
+            raise ValueError(f"Required neutral output file does not exist: {path}")
+    return persisted_config
+
+
+def validate_persisted_config(
+    path: Path,
+    run_config: dict[str, Any],
+) -> dict[str, Any]:
+    if not path.is_file():
+        raise ValueError(f"Neutral run configuration does not exist: {path}")
+    existing = read_json_object(path)
+    if existing.get("configuration_signature") != run_config.get(
+        "configuration_signature"
+    ):
+        raise ValueError(f"Requested settings do not match existing config: {path}")
+    return existing
+
+
 def prepare_output(
     *,
     paths: dict[str, Path],
@@ -828,14 +1321,7 @@ def prepare_output(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     if paths["config"].exists():
-        existing = read_json_object(paths["config"])
-        if existing.get("configuration_signature") != run_config.get(
-            "configuration_signature"
-        ):
-            raise ValueError(
-                f"Requested settings do not match existing config: {paths['config']}"
-            )
-        persisted_config = existing
+        persisted_config = validate_persisted_config(paths["config"], run_config)
     else:
         existing_output_file = any(
             path.exists() for name, path in paths.items() if name != "directory"
@@ -851,8 +1337,13 @@ def prepare_output(
     return persisted_config
 
 
-def load_completed_keys(path: Path) -> tuple[set[RecordKey], int]:
-    repair_incomplete_jsonl_tail(path)
+def load_completed_keys(
+    path: Path,
+    *,
+    repair: bool = True,
+) -> tuple[set[RecordKey], int]:
+    if repair:
+        repair_incomplete_jsonl_tail(path)
     completed: set[RecordKey] = set()
     accepted_after_max_attempts = 0
     for line_number, row in iter_jsonl(path):
@@ -874,8 +1365,10 @@ def load_attempt_states(
     completed_keys: set[RecordKey],
     intended_keys: set[RecordKey],
     max_attempts: int,
+    repair: bool = True,
 ) -> tuple[dict[RecordKey, AttemptState], int]:
-    repair_incomplete_jsonl_tail(path)
+    if repair:
+        repair_incomplete_jsonl_tail(path)
     states: dict[RecordKey, AttemptState] = {}
     seen_attempts: set[tuple[RecordKey, int]] = set()
     total_attempts = 0
@@ -905,6 +1398,289 @@ def load_attempt_states(
             state.max_attempt_number = attempt_number
             state.latest_attempt = row
     return states, total_attempts
+
+
+def validate_output_records(
+    *,
+    accepted_path: Path,
+    attempts_path: Path,
+    jobs: list[GenerationJob],
+    model_name: str,
+    base_seed: int,
+    max_attempts: int,
+) -> None:
+    """Validate exact row schemas and link every accepted row to one attempt."""
+
+    expected_by_key = {job.key: job for job in jobs}
+    accepted_by_key: dict[RecordKey, dict[str, Any]] = {}
+    for line_number, row in iter_jsonl(accepted_path):
+        location = f"{accepted_path}:{line_number}"
+        _validate_exact_record_fields(
+            row=row,
+            expected=ACCEPTED_RECORD_FIELDS,
+            kind="Accepted record",
+            location=location,
+        )
+        key = record_key(row, path=accepted_path, line_number=line_number)
+        job = expected_by_key.get(key)
+        if job is None:
+            raise ValueError(f"Unexpected accepted key {key!r} in {location}")
+        if key in accepted_by_key:
+            raise ValueError(f"Duplicate accepted key {key!r} in {location}")
+
+        prompt = render_neutral_dialogue_prompt(
+            topic=job.topic.topic,
+            dialogue_type=job.dialogue_type,
+            include_system_instruction=job.system_instruction_included,
+        )
+        expected_fields: dict[str, Any] = {
+            "record_id": job.record_id,
+            "label": LABEL,
+            "topic_id": job.topic.topic_id,
+            "topic": job.topic.topic,
+            "sample_index": job.sample_index,
+            "dialogue_type": job.dialogue_type,
+            "system_instruction_included": job.system_instruction_included,
+            "prompt_version": PROMPT_VERSION,
+            "prompt": prompt,
+            "generator_model": model_name,
+            "structurally_valid": True,
+        }
+        _validate_expected_fields(
+            row=row,
+            expected=expected_fields,
+            kind="Accepted record",
+            location=location,
+        )
+
+        raw_completion = row["raw_completion"]
+        dialogue = row["dialogue_person_ai"]
+        transcript = row["transcript"]
+        if not isinstance(raw_completion, str) or not isinstance(dialogue, str):
+            raise ValueError(f"Accepted dialogue text is invalid in {location}")
+        if clean_dialogue(raw_completion) != dialogue:
+            raise ValueError(f"Accepted cleaned dialogue is inconsistent in {location}")
+        structurally_valid, _ = validate_dialogue_structure(
+            dialogue,
+            system_instruction_included=job.system_instruction_included,
+        )
+        if not structurally_valid:
+            raise ValueError(f"Accepted dialogue is structurally invalid in {location}")
+        expected_transcript = re.sub(r"(?m)^Person:", "Human:", dialogue)
+        expected_transcript = re.sub(
+            r"(?m)^AI:",
+            "Assistant:",
+            expected_transcript,
+        )
+        if transcript != expected_transcript:
+            raise ValueError(f"Accepted transcript conversion is invalid in {location}")
+
+        non_latin = contains_non_latin_letter(dialogue)
+        if row["non_latin_letter_present"] is not non_latin:
+            raise ValueError(f"Accepted script flag is invalid in {location}")
+        attempt_count = row["attempt_count"]
+        accepted_seed = row["accepted_seed"]
+        if (
+            isinstance(attempt_count, bool)
+            or not isinstance(attempt_count, int)
+            or not 1 <= attempt_count <= max_attempts
+        ):
+            raise ValueError(f"Accepted attempt_count is invalid in {location}")
+        if isinstance(accepted_seed, bool) or not isinstance(accepted_seed, int):
+            raise ValueError(f"Accepted seed is invalid in {location}")
+        expected_seed = create_seed(
+            base_seed,
+            LABEL,
+            job.topic.topic_id,
+            job.sample_index,
+            attempt_count,
+        )
+        if accepted_seed != expected_seed:
+            raise ValueError(f"Accepted seed is invalid in {location}")
+        expected_after_max = (
+            non_latin
+            and max_attempts == MAX_TOTAL_ATTEMPTS
+            and attempt_count == MAX_TOTAL_ATTEMPTS
+        )
+        if row["accepted_after_max_attempts"] is not expected_after_max:
+            raise ValueError(f"Accepted fallback flag is invalid in {location}")
+        if not isinstance(row["created_at"], str) or not row["created_at"]:
+            raise ValueError(f"Accepted timestamp is invalid in {location}")
+        accepted_by_key[key] = row
+
+    attempts_by_key: dict[RecordKey, list[dict[str, Any]]] = {}
+    seen_attempts: set[tuple[RecordKey, int]] = set()
+    for line_number, row in iter_jsonl(attempts_path):
+        location = f"{attempts_path}:{line_number}"
+        _validate_exact_record_fields(
+            row=row,
+            expected=ATTEMPT_RECORD_FIELDS,
+            kind="Attempt record",
+            location=location,
+        )
+        key = record_key(row, path=attempts_path, line_number=line_number)
+        job = expected_by_key.get(key)
+        if job is None:
+            raise ValueError(f"Unexpected attempt key {key!r} in {location}")
+        attempt_number = row["attempt_number"]
+        if (
+            isinstance(attempt_number, bool)
+            or not isinstance(attempt_number, int)
+            or not 1 <= attempt_number <= max_attempts
+        ):
+            raise ValueError(f"Attempt number is invalid in {location}")
+        attempt_key = (key, attempt_number)
+        if attempt_key in seen_attempts:
+            raise ValueError(f"Duplicate attempt {attempt_key!r} in {location}")
+        seen_attempts.add(attempt_key)
+
+        prompt = render_neutral_dialogue_prompt(
+            topic=job.topic.topic,
+            dialogue_type=job.dialogue_type,
+            include_system_instruction=job.system_instruction_included,
+        )
+        expected_seed = create_seed(
+            base_seed,
+            LABEL,
+            job.topic.topic_id,
+            job.sample_index,
+            attempt_number,
+        )
+        expected_fields = {
+            "record_id": job.record_id,
+            "label": LABEL,
+            "topic_id": job.topic.topic_id,
+            "topic": job.topic.topic,
+            "sample_index": job.sample_index,
+            "attempt_number": attempt_number,
+            "seed": expected_seed,
+            "dialogue_type": job.dialogue_type,
+            "system_instruction_included": job.system_instruction_included,
+            "prompt_version": PROMPT_VERSION,
+            "prompt": prompt,
+        }
+        _validate_expected_fields(
+            row=row,
+            expected=expected_fields,
+            kind="Attempt record",
+            location=location,
+        )
+        if not isinstance(row["created_at"], str) or not row["created_at"]:
+            raise ValueError(f"Attempt timestamp is invalid in {location}")
+        if not isinstance(row["failure_reasons"], list) or not all(
+            isinstance(reason, str) for reason in row["failure_reasons"]
+        ):
+            raise ValueError(f"Attempt failure reasons are invalid in {location}")
+
+        generation_error = row["generation_error"]
+        if generation_error is None:
+            raw_completion = row["raw_completion"]
+            dialogue = row["dialogue_person_ai"]
+            if not isinstance(raw_completion, str) or not isinstance(dialogue, str):
+                raise ValueError(f"Attempt dialogue text is invalid in {location}")
+            if clean_dialogue(raw_completion) != dialogue:
+                raise ValueError(f"Attempt cleaned dialogue is invalid in {location}")
+            structurally_valid, failure_reasons = validate_dialogue_structure(
+                dialogue,
+                system_instruction_included=job.system_instruction_included,
+            )
+            non_latin = contains_non_latin_letter(dialogue)
+            if non_latin:
+                failure_reasons.append("non-Latin letter present")
+            if row["structurally_valid"] is not structurally_valid:
+                raise ValueError(f"Attempt structural flag is invalid in {location}")
+            if row["non_latin_letter_present"] is not non_latin:
+                raise ValueError(f"Attempt script flag is invalid in {location}")
+            if row["failure_reasons"] != failure_reasons:
+                raise ValueError(f"Attempt failure reasons are invalid in {location}")
+        elif not isinstance(generation_error, str) or not generation_error:
+            raise ValueError(f"Attempt generation error is invalid in {location}")
+
+        attempts_by_key.setdefault(key, []).append(row)
+
+    for key, attempts in attempts_by_key.items():
+        numbers = [int(attempt["attempt_number"]) for attempt in attempts]
+        expected_numbers = list(range(1, max(numbers) + 1))
+        if numbers != expected_numbers:
+            raise ValueError(
+                f"Attempt sequence for key {key!r} is {numbers!r}, "
+                f"expected {expected_numbers!r}"
+            )
+
+    for key, accepted in accepted_by_key.items():
+        attempts = attempts_by_key.get(key, [])
+        attempt_count = int(accepted["attempt_count"])
+        if len(attempts) != attempt_count:
+            raise ValueError(f"Accepted attempt count is inconsistent for key {key!r}")
+        selected = [
+            attempt
+            for attempt in attempts
+            if attempt["attempt_number"] == attempt_count
+        ]
+        if len(selected) != 1:
+            raise ValueError(f"Accepted attempt linkage is invalid for key {key!r}")
+        selected_attempt = selected[0]
+        if not attempt_is_acceptable(
+            selected_attempt,
+            max_attempts=max_attempts,
+        ):
+            raise ValueError(
+                f"Accepted dialogue links to an unacceptable attempt for key {key!r}"
+            )
+        copied_fields = (
+            "record_id",
+            "label",
+            "topic_id",
+            "topic",
+            "sample_index",
+            "dialogue_type",
+            "system_instruction_included",
+            "prompt_version",
+            "prompt",
+            "raw_completion",
+            "dialogue_person_ai",
+            "structurally_valid",
+            "non_latin_letter_present",
+        )
+        for field in copied_fields:
+            if accepted[field] != selected_attempt[field]:
+                raise ValueError(
+                    f"Accepted field {field!r} does not match its attempt for "
+                    f"key {key!r}"
+                )
+        if accepted["accepted_seed"] != selected_attempt["seed"]:
+            raise ValueError(f"Accepted seed linkage is invalid for key {key!r}")
+
+
+def _validate_exact_record_fields(
+    *,
+    row: dict[str, Any],
+    expected: frozenset[str],
+    kind: str,
+    location: str,
+) -> None:
+    actual = set(row)
+    if actual != expected:
+        raise ValueError(
+            f"{kind} fields do not match the neutral schema in {location}: "
+            f"missing={sorted(expected - actual)!r}, "
+            f"unexpected={sorted(actual - expected)!r}"
+        )
+
+
+def _validate_expected_fields(
+    *,
+    row: dict[str, Any],
+    expected: dict[str, Any],
+    kind: str,
+    location: str,
+) -> None:
+    for field, value in expected.items():
+        if row.get(field) != value:
+            raise ValueError(
+                f"{kind} field {field!r} in {location} is "
+                f"{row.get(field)!r}, expected {value!r}"
+            )
 
 
 def reconcile_flushed_attempts(
@@ -960,6 +1736,7 @@ def build_run_config(
     args: argparse.Namespace,
     topics: list[Topic],
     topics_path: Path,
+    topics_sha256: str,
     output_dir: Path,
     parameters: GenerationParameters,
     created_at: str,
@@ -999,6 +1776,12 @@ def build_run_config(
         "dtype": args.dtype,
         "output_directory": str(output_dir),
     }
+    if args.attn_implementation is not None:
+        signature["attn_implementation"] = args.attn_implementation
+    if args.eos_token_policy != "tokenizer":
+        signature["eos_token_policy"] = args.eos_token_policy
+    if args.trust_remote_code:
+        signature["trust_remote_code"] = True
     cli_arguments = {
         "model": args.model,
         "model_revision": args.model_revision,
@@ -1007,17 +1790,26 @@ def build_run_config(
         "samples_per_topic": args.samples_per_topic,
         "max_topics": args.max_topics,
         "max_attempts": args.max_attempts,
+        "batch_size": args.batch_size,
         "temperature": args.temperature,
         "top_p": args.top_p,
+        "top_k": args.top_k,
+        "repetition_penalty": args.repetition_penalty,
         "do_sample": args.do_sample,
         "max_new_tokens": args.max_new_tokens,
         "base_seed": args.base_seed,
         "device": args.device,
         "dtype": args.dtype,
+        "attn_implementation": args.attn_implementation,
+        "eos_token_policy": args.eos_token_policy,
+        "trust_remote_code": args.trust_remote_code,
+        "local_files_only": args.local_files_only,
+        "require_model_revision": args.require_model_revision,
         "resume": args.resume,
     }
     return {
         "topic_source_path": str(topics_path),
+        "topics_sha256": topics_sha256,
         "topics": topics_payload,
         "generator_model": args.model,
         "model_revision": args.model_revision,
@@ -1049,6 +1841,9 @@ def build_run_config(
         "maximum_attempts": args.max_attempts,
         "base_seed": args.base_seed,
         "generation_settings": parameters.as_dict(),
+        "attn_implementation": args.attn_implementation,
+        "eos_token_policy": args.eos_token_policy,
+        "trust_remote_code": args.trust_remote_code,
         "output_directory": str(output_dir),
         "cli_arguments": cli_arguments,
         "creation_timestamp": created_at,
@@ -1173,10 +1968,55 @@ def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _is_immutable_revision(revision: str | None) -> bool:
+    return bool(revision and re.fullmatch(r"[0-9a-fA-F]{40}", revision))
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _validate_sha256_expectation(
+    *,
+    parser: argparse.ArgumentParser,
+    option: str,
+    expected: str,
+    actual: str,
+) -> None:
+    normalized = expected.casefold()
+    if not re.fullmatch(r"[0-9a-f]{64}", normalized):
+        parser.error(f"{option} must be exactly 64 hexadecimal characters")
+    if normalized != actual:
+        parser.error(f"{option} expected {normalized}, but the resolved file is {actual}")
+
+
+def _is_out_of_memory_error(error: BaseException) -> bool:
+    current: BaseException | None = error
+    while current is not None:
+        if current.__class__.__name__ in {"OutOfMemoryError", "CUDAOutOfMemoryError"}:
+            return True
+        message = str(current).casefold()
+        if "out of memory" in message or "not enough memory" in message:
+            return True
+        current = current.__cause__ or current.__context__
+    return False
+
+
 def _positive_int(raw: str) -> int:
     value = int(raw)
     if value < 1:
         raise argparse.ArgumentTypeError("value must be at least 1")
+    return value
+
+
+def _nonnegative_int(raw: str) -> int:
+    value = int(raw)
+    if value < 0:
+        raise argparse.ArgumentTypeError("value must be at least 0")
     return value
 
 

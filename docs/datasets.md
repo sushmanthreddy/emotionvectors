@@ -1,4 +1,8 @@
-# Datasets
+# Original Qwen2.5-7B datasets
+
+This page documents the unnamespaced original 7B datasets. The expanded
+54,000-story and 1,200-neutral-transcript 14B release is documented in the
+[14B experiment guide](Qwen2.5-14B-Instruct/README.md).
 
 ## Topics
 

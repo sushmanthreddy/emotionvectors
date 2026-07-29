@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "emotionvectors"
-version = "0.1.0"
-description = "Layer-wise emotion vectors for Qwen2.5-7B-Instruct"
+version = "0.2.0"
+description = "Reproducible layer-wise emotion-vector pipelines for Qwen2.5"
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
 dependencies = [
@@ -20,9 +20,14 @@ dependencies = [
 emotionvectors-generate-stories = "emotionvectors.generation.emotional_stories:main"
 emotionvectors-generate-neutral = "emotionvectors.generation.neutral_dialogues:main"
 emotionvectors-extract = "emotionvectors.extraction.raw_vectors:main"
-emotionvectors-clean = "emotionvectors.extraction.neutral_pca:main"
+emotionvectors-story-extract = "emotionvectors.extraction.story_raw_vectors:main"
+emotionvectors-neutral-pca = "emotionvectors.extraction.neutral_pca:main"
+emotionvectors-clean = "emotionvectors.extraction.clean_vectors:main"
+emotionvectors-clean-vectors = "emotionvectors.extraction.clean_vectors:main"
 emotionvectors-score = "emotionvectors.visualization.score_tokens:main"
 emotionvectors-plot = "emotionvectors.visualization.anthropic_style:main"
+emotionvectors-score-subset = "emotionvectors.visualization.subset_score:main"
+emotionvectors-plot-subset = "emotionvectors.visualization.subset_plot:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

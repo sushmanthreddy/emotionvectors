@@ -1,4 +1,8 @@
-# Vector artifacts
+# Original Qwen2.5-7B vector artifacts
+
+This page documents `artifacts/Qwen2.5-7B-Instruct`. The expanded 45-emotion,
+48-layer 14B vector bundle is documented in the
+[14B experiment guide](Qwen2.5-14B-Instruct/README.md).
 
 All vector dictionaries are in `artifacts/Qwen2.5-7B-Instruct/`. Each dictionary is keyed by the 12 canonical emotion names. Every value is a finite float32 tensor with shape `[28, 3584]`; select an emotion and zero-based layer to obtain one `[3584]` direction.
 

@@ -1,9 +1,9 @@
-"""Emotion vectors and reproducible pipelines for Qwen2.5-7B-Instruct."""
+"""Released layer-wise emotion vectors and reproducible Qwen2.5 pipelines."""
 
 from .constants import EMOTIONS, MODEL_ID, MODEL_REVISION
 from .vectors import get_vector, load_vector_file, load_vectors, stack_vectors
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "EMOTIONS",

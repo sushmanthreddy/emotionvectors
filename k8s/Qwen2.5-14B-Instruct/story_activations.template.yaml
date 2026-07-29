@@ -1,0 +1,502 @@
+# Render-only PyTorchJob template. Do not submit this file with its placeholders.
+#
+# Staging convention (all paths are on PVC susmered-datavol-1):
+#
+#   emotion-activation-runs/qwen2.5-14b-instruct/<run-id>/
+#     source/
+#       STAGED_SOURCE_SHA256SUMS
+#       config/story_emotions.json
+#       pyproject.toml
+#       src/emotionvectors/...
+#     outputs/full/
+#
+# The job reuses the immutable accepted-story dataset, Python environment, and
+# Hugging Face cache from the completed 14B story run:
+#
+#   emotion-story-runs/qwen2.5-14b-instruct/20260725-103950-d9fb0daf/
+#     outputs/full/
+#       config.json
+#       manifest.json
+#       records/*.jsonl
+#     python-deps/
+#     cache/
+#
+# Use a new immutable <run-id> matching YYYYMMDD-HHMMSS-xxxxxxxx. Build
+# STAGED_SOURCE_SHA256SUMS from every regular file in source/ except the checksum
+# manifest itself, with paths relative to source/. Replace every replace-run-id
+# token below, then replace replace-with-source-manifest-sha256 with the lowercase
+# SHA-256 of STAGED_SOURCE_SHA256SUMS. The container verifies both the manifest and
+# the complete staged source tree before importing project code.
+#
+# The source and outputs/full subPath directories must exist before creating the
+# job. outputs/full may be empty for a new run or contain only the exact compatible
+# extraction run for --resume. Do not create another dependency or model cache.
+#
+# The rendered job name is 44 characters with a 24-character run ID; the
+# controller-created "<job>-master-0" Service name is therefore 53 characters,
+# safely below Kubernetes' 63-character limit.
+apiVersion: kubeflow.org/v1
+kind: PyTorchJob
+metadata:
+  name: emotion-act-q25-14b-replace-run-id
+  namespace: sbg-mechanistic-interpretability
+  labels:
+    app.kubernetes.io/name: emotion-activation-extraction
+    app.kubernetes.io/component: q25-14b-full-b4
+    kueue.x-k8s.io/queue-name: default
+    emotion-activations/run-group: replace-run-id
+  annotations:
+    emotion-activations/model-revision: cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8
+    emotion-activations/source-manifest-sha256: replace-with-source-manifest-sha256
+    emotion-activations/story-run: 20260725-103950-d9fb0daf
+spec:
+  nprocPerNode: "1"
+  runPolicy:
+    activeDeadlineSeconds: 604800
+    backoffLimit: 0
+    cleanPodPolicy: None
+    suspend: true
+  pytorchReplicaSpecs:
+    Master:
+      replicas: 1
+      restartPolicy: Never
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: emotion-activation-extraction
+            app.kubernetes.io/component: q25-14b-full-b4
+            emotion-activations/run-group: replace-run-id
+          annotations:
+            sidecar.istio.io/inject: "false"
+        spec:
+          automountServiceAccountToken: false
+          enableServiceLinks: false
+          terminationGracePeriodSeconds: 120
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 100
+            fsGroup: 100
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: pytorch
+              image: ghcr.io/kubeflow/kubeflow/notebook-servers/jupyter-pytorch-cuda-full@sha256:526cd83a1e3e27ab061de49fe6752fa6e0602d13ea671c3b469bdd34230ea5bc
+              imagePullPolicy: IfNotPresent
+              workingDir: /workspace/source
+              command:
+                - bash
+                - -c
+              args:
+                - |-
+                  set -euo pipefail
+                  umask 077
+
+                  readonly EXPECTED_MODEL_ID="Qwen/Qwen2.5-14B-Instruct"
+                  readonly EXPECTED_MODEL_REVISION="cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8"
+                  readonly SOURCE_ROOT="/workspace/source"
+                  readonly SOURCE_MANIFEST="${SOURCE_ROOT}/STAGED_SOURCE_SHA256SUMS"
+                  readonly DATASET_ROOT="/mnt/story-data"
+                  readonly RECORDS_DIR="${DATASET_ROOT}/records"
+                  readonly GENERATION_MANIFEST="${DATASET_ROOT}/manifest.json"
+                  readonly EMOTION_CONFIG="${SOURCE_ROOT}/config/story_emotions.json"
+                  readonly CACHE_ROOT="/mnt/cache"
+                  readonly OUTPUT_ROOT="/mnt/output"
+                  readonly PYTHON="/opt/venv/bin/python"
+
+                  if [[ ! "${RUN_ID}" =~ ^[0-9]{8}-[0-9]{6}-[0-9a-f]{8}$ ]]; then
+                    echo "RUN_ID must match YYYYMMDD-HHMMSS-xxxxxxxx: ${RUN_ID}" >&2
+                    exit 2
+                  fi
+                  if [[ ! "${SOURCE_MANIFEST_SHA256}" =~ ^[0-9a-f]{64}$ ]]; then
+                    echo "SOURCE_MANIFEST_SHA256 must be a rendered lowercase SHA-256" >&2
+                    exit 2
+                  fi
+                  if [ "${MODEL_ID}" != "${EXPECTED_MODEL_ID}" ]; then
+                    echo "Unexpected model ID: ${MODEL_ID}" >&2
+                    exit 2
+                  fi
+                  if [ "${MODEL_REVISION}" != "${EXPECTED_MODEL_REVISION}" ]; then
+                    echo "Unexpected model revision: ${MODEL_REVISION}" >&2
+                    exit 2
+                  fi
+
+                  test -d "${SOURCE_ROOT}"
+                  test -r "${SOURCE_MANIFEST}"
+                  test -x "${PYTHON}"
+                  test -d "${HF_HOME}"
+                  test -d "${MODEL_SNAPSHOT}"
+                  test -d "${DATASET_ROOT}"
+                  test -d "${RECORDS_DIR}"
+                  test -r "${GENERATION_MANIFEST}"
+                  test -r "${DATASET_ROOT}/config.json"
+                  test -r "${EMOTION_CONFIG}"
+                  test -d "${OUTPUT_ROOT}"
+                  test -w "${OUTPUT_ROOT}"
+                  mkdir -p /tmp/home /tmp/xdg
+
+                  printf '%s  %s\n' \
+                    "${SOURCE_MANIFEST_SHA256}" \
+                    "${SOURCE_MANIFEST}" \
+                    | sha256sum --check --strict -
+
+                  "${PYTHON}" - <<'PYTHON'
+                  from pathlib import Path, PurePosixPath
+                  import re
+
+                  root = Path("/workspace/source")
+                  manifest = root / "STAGED_SOURCE_SHA256SUMS"
+                  listed = set()
+                  pattern = re.compile(r"^([0-9a-f]{64})  (.+)$")
+                  for line_number, line in enumerate(
+                      manifest.read_text(encoding="utf-8").splitlines(),
+                      start=1,
+                  ):
+                      match = pattern.fullmatch(line)
+                      if match is None:
+                          raise RuntimeError(
+                              f"Invalid source checksum line {line_number}"
+                          )
+                      relative_text = match.group(2)
+                      relative = PurePosixPath(relative_text)
+                      if (
+                          relative.is_absolute()
+                          or ".." in relative.parts
+                          or relative_text == manifest.name
+                      ):
+                          raise RuntimeError(
+                              f"Unsafe source checksum path: {relative_text!r}"
+                          )
+                      if relative_text in listed:
+                          raise RuntimeError(
+                              f"Duplicate source checksum path: {relative_text!r}"
+                          )
+                      listed.add(relative_text)
+
+                  actual = set()
+                  for path in root.rglob("*"):
+                      if path.is_symlink():
+                          raise RuntimeError(f"Staged source symlink is forbidden: {path}")
+                      if path.is_file() and path != manifest:
+                          actual.add(path.relative_to(root).as_posix())
+                  if listed != actual:
+                      missing = sorted(actual - listed)
+                      stale = sorted(listed - actual)
+                      raise RuntimeError(
+                          "Source checksum coverage mismatch: "
+                          f"unlisted={missing[:5]!r} absent={stale[:5]!r}"
+                      )
+                  print(f"SOURCE_MANIFEST_READY files={len(actual)}")
+                  PYTHON
+
+                  (
+                    cd "${SOURCE_ROOT}"
+                    sha256sum --check --strict STAGED_SOURCE_SHA256SUMS
+                  )
+
+                  "${PYTHON}" - <<'PYTHON'
+                  from importlib import metadata
+                  from pathlib import Path
+                  import sys
+
+                  expected = {
+                      "accelerate": "1.14.0",
+                      "huggingface-hub": "0.36.2",
+                      "numpy": "1.26.4",
+                      "safetensors": "0.8.0",
+                      "tokenizers": "0.20.3",
+                      "transformers": "4.46.3",
+                  }
+                  if sys.version_info[:3] != (3, 11, 11):
+                      raise RuntimeError(f"Unsupported Python runtime: {sys.version}")
+                  for package, version in expected.items():
+                      actual = metadata.version(package)
+                      if actual != version:
+                          raise RuntimeError(
+                              f"{package} version is {actual}, expected {version}"
+                          )
+
+                  import emotionvectors
+                  import torch
+
+                  source_package = (
+                      Path("/workspace/source/src/emotionvectors").resolve()
+                  )
+                  imported_package = Path(emotionvectors.__file__).resolve()
+                  if not imported_package.is_relative_to(source_package):
+                      raise RuntimeError(
+                          "emotionvectors imported outside the staged source: "
+                          f"{imported_package}"
+                      )
+                  if torch.__version__ != "2.5.1+cu124":
+                      raise RuntimeError(
+                          f"torch version is {torch.__version__}, expected 2.5.1+cu124"
+                      )
+                  if not torch.cuda.is_available():
+                      raise RuntimeError("CUDA GPU is unavailable")
+                  if torch.cuda.device_count() != 1:
+                      raise RuntimeError(
+                          f"Expected exactly one GPU, found {torch.cuda.device_count()}"
+                      )
+                  if not torch.cuda.is_bf16_supported():
+                      raise RuntimeError("GPU does not support bfloat16")
+                  properties = torch.cuda.get_device_properties(0)
+                  print(
+                      "RUNTIME_READY",
+                      f"python={sys.version.split()[0]}",
+                      f"torch={torch.__version__}",
+                      f"gpu={properties.name}",
+                      f"gpu_bytes={properties.total_memory}",
+                  )
+                  PYTHON
+
+                  "${PYTHON}" -m pip check
+
+                  "${PYTHON}" - <<'PYTHON'
+                  from pathlib import Path, PurePosixPath
+                  import json
+                  import os
+
+                  model_id = os.environ["MODEL_ID"]
+                  revision = os.environ["MODEL_REVISION"]
+                  cache_root = Path(os.environ["HF_HOME"]).resolve()
+                  snapshot = Path(os.environ["MODEL_SNAPSHOT"])
+                  if snapshot.name != revision:
+                      raise RuntimeError(
+                          f"Snapshot path does not end in revision {revision}: {snapshot}"
+                      )
+                  if not snapshot.resolve().is_relative_to(cache_root):
+                      raise RuntimeError(
+                          f"Model snapshot escapes HF_HOME: {snapshot.resolve()}"
+                      )
+
+                  required = (
+                      "config.json",
+                      "model.safetensors.index.json",
+                      "tokenizer.json",
+                      "tokenizer_config.json",
+                  )
+                  for filename in required:
+                      path = snapshot / filename
+                      if not path.is_file() or path.stat().st_size == 0:
+                          raise RuntimeError(
+                              f"Missing cached {model_id} file: {path}"
+                          )
+                      if not path.resolve().is_relative_to(cache_root):
+                          raise RuntimeError(
+                              f"Cached model file escapes HF_HOME: {path}"
+                          )
+
+                  config = json.loads(
+                      (snapshot / "config.json").read_text(encoding="utf-8")
+                  )
+                  expected_config = {
+                      "model_type": "qwen2",
+                      "hidden_size": 5120,
+                      "num_hidden_layers": 48,
+                      "torch_dtype": "bfloat16",
+                  }
+                  for field, expected in expected_config.items():
+                      if config.get(field) != expected:
+                          raise RuntimeError(
+                              f"Unexpected model config {field}: {config.get(field)!r}"
+                          )
+                  if "Qwen2ForCausalLM" not in config.get("architectures", []):
+                      raise RuntimeError(
+                          f"Unexpected model architecture: {config.get('architectures')!r}"
+                      )
+
+                  index = json.loads(
+                      (snapshot / "model.safetensors.index.json").read_text(
+                          encoding="utf-8"
+                      )
+                  )
+                  weight_map = index.get("weight_map")
+                  total_size = index.get("metadata", {}).get("total_size")
+                  if not isinstance(weight_map, dict) or not weight_map:
+                      raise RuntimeError("Cached weight index has no weight map")
+                  if total_size != 29_540_067_328:
+                      raise RuntimeError(
+                          f"Unexpected 14B cached tensor size: {total_size!r}"
+                      )
+
+                  shard_names = set(weight_map.values())
+                  if len(shard_names) != 8:
+                      raise RuntimeError(
+                          f"Expected 8 cached model shards, found {len(shard_names)}"
+                      )
+                  shard_bytes = 0
+                  for shard_name in shard_names:
+                      if not isinstance(shard_name, str):
+                          raise RuntimeError("Non-string shard path in weight index")
+                      relative = PurePosixPath(shard_name)
+                      if relative.is_absolute() or ".." in relative.parts:
+                          raise RuntimeError(
+                              f"Unsafe cached shard path: {shard_name!r}"
+                          )
+                      shard = snapshot / shard_name
+                      if not shard.is_file() or shard.stat().st_size == 0:
+                          raise RuntimeError(f"Missing cached model shard: {shard}")
+                      if not shard.resolve().is_relative_to(cache_root):
+                          raise RuntimeError(
+                              f"Cached model shard escapes HF_HOME: {shard}"
+                          )
+                      shard_bytes += shard.stat().st_size
+                  if shard_bytes < total_size:
+                      raise RuntimeError(
+                          "Cached model shards are smaller than indexed tensors: "
+                          f"shards={shard_bytes} tensors={total_size}"
+                      )
+                  print(
+                      "MODEL_CACHE_READY",
+                      f"model={model_id}",
+                      f"revision={revision}",
+                      f"layers={config['num_hidden_layers']}",
+                      f"hidden_size={config['hidden_size']}",
+                      f"shards={len(shard_names)}",
+                      f"bytes={shard_bytes}",
+                  )
+                  PYTHON
+
+                  readonly -a DATASET_ARGS=(
+                    --records-dir "${RECORDS_DIR}"
+                    --generation-manifest "${GENERATION_MANIFEST}"
+                    --emotion-config "${EMOTION_CONFIG}"
+                    --expected-emotions 45
+                    --expected-records-per-emotion 1200
+                    --expected-total-records 54000
+                    --output-dir "${OUTPUT_ROOT}"
+                  )
+
+                  echo "DATASET_PREFLIGHT_START"
+                  "${PYTHON}" -m emotionvectors.extraction.raw_vectors preflight \
+                    "${DATASET_ARGS[@]}"
+                  echo "DATASET_PREFLIGHT_COMPLETE"
+
+                  echo "TOKENIZER_PREFLIGHT_START"
+                  "${PYTHON}" -m emotionvectors.extraction.raw_vectors tokenize-preflight \
+                    --model "${MODEL_ID}" \
+                    --model-revision "${MODEL_REVISION}" \
+                    --cache-dir "${CACHE_ROOT}" \
+                    --records-dir "${RECORDS_DIR}" \
+                    --emotion-config "${EMOTION_CONFIG}" \
+                    --start-token-position 50 \
+                    --local-files-only \
+                    --output-dir "${OUTPUT_ROOT}"
+                  echo "TOKENIZER_PREFLIGHT_COMPLETE"
+
+                  echo "FULL_EXTRACTION_START"
+                  "${PYTHON}" -m emotionvectors.extraction.raw_vectors extract \
+                    --model "${MODEL_ID}" \
+                    --model-revision "${MODEL_REVISION}" \
+                    --cache-dir "${CACHE_ROOT}" \
+                    --records-dir "${RECORDS_DIR}" \
+                    --generation-manifest "${GENERATION_MANIFEST}" \
+                    --emotion-config "${EMOTION_CONFIG}" \
+                    --expected-emotions 45 \
+                    --expected-records-per-emotion 1200 \
+                    --expected-total-records 54000 \
+                    --expected-layers 48 \
+                    --expected-hidden-size 5120 \
+                    --output-dir "${OUTPUT_ROOT}" \
+                    --start-token-position 50 \
+                    --batch-size 4 \
+                    --max-batch-tokens 8192 \
+                    --pad-to-multiple-of 8 \
+                    --records-per-shard 100 \
+                    --dtype bfloat16 \
+                    --activation-dtype float16 \
+                    --local-files-only \
+                    --resume
+                  echo "FULL_EXTRACTION_COMPLETE"
+              env:
+                - name: RUN_ID
+                  value: replace-run-id
+                - name: SOURCE_MANIFEST_SHA256
+                  value: replace-with-source-manifest-sha256
+                - name: MODEL_ID
+                  value: Qwen/Qwen2.5-14B-Instruct
+                - name: MODEL_REVISION
+                  value: cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8
+                - name: MODEL_SNAPSHOT
+                  value: /mnt/cache/huggingface/hub/models--Qwen--Qwen2.5-14B-Instruct/snapshots/cf98f3b3bbb457ad9e2bb7baf9a0125b6b88caa8
+                - name: HF_HOME
+                  value: /mnt/cache/huggingface
+                - name: HF_HUB_OFFLINE
+                  value: "1"
+                - name: TRANSFORMERS_OFFLINE
+                  value: "1"
+                - name: HF_HUB_DISABLE_TELEMETRY
+                  value: "1"
+                - name: TOKENIZERS_PARALLELISM
+                  value: "false"
+                - name: PYTHONPATH
+                  value: /workspace/source/src
+                - name: PYTHONDONTWRITEBYTECODE
+                  value: "1"
+                - name: PYTHONNOUSERSITE
+                  value: "1"
+                - name: PYTHONUNBUFFERED
+                  value: "1"
+                - name: HOME
+                  value: /tmp/home
+                - name: XDG_CACHE_HOME
+                  value: /tmp/xdg
+                - name: TMPDIR
+                  value: /tmp
+                - name: OMP_NUM_THREADS
+                  value: "4"
+                - name: MKL_NUM_THREADS
+                  value: "4"
+              resources:
+                requests:
+                  cpu: "4"
+                  memory: 32Gi
+                  nvidia.com/gpu: "1"
+                limits:
+                  cpu: "4"
+                  memory: 32Gi
+                  nvidia.com/gpu: "1"
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+              volumeMounts:
+                - name: shared-data
+                  mountPath: /workspace/source
+                  subPath: emotion-activation-runs/qwen2.5-14b-instruct/replace-run-id/source
+                  readOnly: true
+                - name: shared-data
+                  mountPath: /opt/venv
+                  subPath: emotion-story-runs/qwen2.5-14b-instruct/20260725-103950-d9fb0daf/python-deps
+                  readOnly: true
+                - name: shared-data
+                  mountPath: /mnt/cache
+                  subPath: emotion-story-runs/qwen2.5-14b-instruct/20260725-103950-d9fb0daf/cache
+                  readOnly: true
+                - name: shared-data
+                  mountPath: /mnt/story-data
+                  subPath: emotion-story-runs/qwen2.5-14b-instruct/20260725-103950-d9fb0daf/outputs/full
+                  readOnly: true
+                - name: shared-data
+                  mountPath: /mnt/output
+                  subPath: emotion-activation-runs/qwen2.5-14b-instruct/replace-run-id/outputs/full
+                - name: temporary
+                  mountPath: /tmp
+                - name: shared-memory
+                  mountPath: /dev/shm
+          volumes:
+            - name: shared-data
+              persistentVolumeClaim:
+                claimName: susmered-datavol-1
+            - name: temporary
+              emptyDir:
+                sizeLimit: 16Gi
+            - name: shared-memory
+              emptyDir:
+                medium: Memory
+                sizeLimit: 8Gi

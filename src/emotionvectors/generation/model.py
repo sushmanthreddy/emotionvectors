@@ -17,16 +17,23 @@ class GenerationParameters:
 
     temperature: float = 0.9
     top_p: float = 0.95
+    top_k: int | None = None
+    repetition_penalty: float | None = None
     do_sample: bool = True
     max_new_tokens: int = 512
 
     def as_dict(self) -> dict[str, object]:
-        return {
+        values: dict[str, object] = {
             "temperature": self.temperature,
             "top_p": self.top_p,
             "do_sample": self.do_sample,
             "max_new_tokens": self.max_new_tokens,
         }
+        if self.top_k is not None:
+            values["top_k"] = self.top_k
+        if self.repetition_penalty is not None:
+            values["repetition_penalty"] = self.repetition_penalty
+        return values
 
 
 def resolve_torch_dtype(name: str) -> torch.dtype | str:
@@ -64,6 +71,10 @@ class LocalHuggingFaceGenerator:
         generation_request: str = "Generate the story now.",
         prompt_role: str = "system",
         chat_system_instruction: str | None = None,
+        attn_implementation: str | None = None,
+        trust_remote_code: bool = False,
+        local_files_only: bool = False,
+        use_model_eos_tokens: bool = False,
     ) -> None:
         try:
             from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -89,6 +100,8 @@ class LocalHuggingFaceGenerator:
         tokenizer = AutoTokenizer.from_pretrained(
             model_name,
             revision=model_revision,
+            trust_remote_code=trust_remote_code,
+            local_files_only=local_files_only,
         )
         if tokenizer.pad_token_id is None:
             if tokenizer.eos_token_id is None:
@@ -102,6 +115,10 @@ class LocalHuggingFaceGenerator:
         }
         if device == "auto":
             model_kwargs["device_map"] = "auto"
+        if attn_implementation is not None:
+            model_kwargs["attn_implementation"] = attn_implementation
+        model_kwargs["trust_remote_code"] = trust_remote_code
+        model_kwargs["local_files_only"] = local_files_only
 
         model = AutoModelForCausalLM.from_pretrained(
             model_name,
@@ -115,6 +132,16 @@ class LocalHuggingFaceGenerator:
 
         self.model = model
         self.tokenizer = tokenizer
+        self.eos_token_id = tokenizer.eos_token_id
+        if use_model_eos_tokens:
+            model_generation_config = getattr(model, "generation_config", None)
+            configured_eos = getattr(
+                model_generation_config,
+                "eos_token_id",
+                None,
+            )
+            if configured_eos is not None:
+                self.eos_token_id = configured_eos
         self._logits_processor_list = LogitsProcessorList
         self._temperature_warper = TemperatureLogitsWarper
         self._top_k_warper = TopKLogitsWarper
@@ -177,10 +204,15 @@ class LocalHuggingFaceGenerator:
         }
 
         model_generation_config = getattr(self.model, "generation_config", None)
-        top_k = int(getattr(model_generation_config, "top_k", 0) or 0)
-        repetition_penalty = float(
-            getattr(model_generation_config, "repetition_penalty", 1.0) or 1.0
-        )
+        top_k = generation_parameters.top_k
+        if top_k is None:
+            top_k = int(getattr(model_generation_config, "top_k", 0) or 0)
+        repetition_penalty = generation_parameters.repetition_penalty
+        if repetition_penalty is None:
+            repetition_penalty = float(
+                getattr(model_generation_config, "repetition_penalty", 1.0) or 1.0
+            )
+
         warpers: list[Callable[[torch.Tensor, torch.Tensor], torch.Tensor]] = []
         if generation_parameters.do_sample:
             if generation_parameters.temperature != 1.0:
@@ -188,7 +220,12 @@ class LocalHuggingFaceGenerator:
                     self._temperature_warper(generation_parameters.temperature)
                 )
             if top_k > 0:
-                warpers.append(self._top_k_warper(top_k=top_k, min_tokens_to_keep=1))
+                warpers.append(
+                    self._top_k_warper(
+                        top_k=top_k,
+                        min_tokens_to_keep=1,
+                    )
+                )
             if generation_parameters.top_p < 1.0:
                 warpers.append(
                     self._top_p_warper(
@@ -212,10 +249,16 @@ class LocalHuggingFaceGenerator:
             # The custom processor performs sampling and forces its chosen token;
             # greedy selection prevents a second, process-global RNG draw.
             "do_sample": False,
+            "num_beams": 1,
+            "num_return_sequences": 1,
+            "return_dict_in_generate": False,
+            "output_scores": False,
+            "output_attentions": False,
+            "output_hidden_states": False,
             "max_new_tokens": generation_parameters.max_new_tokens,
             "use_cache": True,
             "pad_token_id": self.tokenizer.pad_token_id,
-            "eos_token_id": self.tokenizer.eos_token_id,
+            "eos_token_id": self.eos_token_id,
             # These are reproduced by the padding-aware processor above.
             "repetition_penalty": 1.0,
             "temperature": 1.0,
